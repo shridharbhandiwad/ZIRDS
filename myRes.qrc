@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/qml">
+        <file>MainView.qml</file>
+        <file>Icons/IconButton.qml</file>
+        <file>Icons/LoadMapIcon.qml</file>
+        <file>Icons/DisableMapIcon.qml</file>
+        <file>Icons/ZoomFitIcon.qml</file>
+        <file>Icons/HomeIcon.qml</file>
+        <file>Icons/GridIcon.qml</file>
+        <file>Icons/CompassIcon.qml</file>
+        <file>Icons/TableIcon.qml</file>
+        <file>Icons/SettingsIcon.qml</file>
+    </qresource>
+    <qresource prefix="/images">
+        <file>resources/drone_icon.svg</file>
+        <file>resources/drone_icon.png</file>
+    </qresource>
+</RCC>

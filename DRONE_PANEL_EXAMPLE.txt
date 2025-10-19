@@ -1,0 +1,142 @@
+═══════════════════════════════════════════════════════════════════════
+                    DRONE INTERNAL DETAILS PANEL
+                      (Displayed in PPI Track Image)
+═══════════════════════════════════════════════════════════════════════
+
+When a track is focused, this panel appears next to it on the PPI display:
+
+╔═══════════════════════════════════════════════════════╗
+║ ┃                                                      ║
+║ ┃  🚁 DRONE #1                                        ║
+║ ┃  ━━━━━━━━━━━━━━                                     ║
+║ ┃  MODE: CRUISE                                       ║
+║ ┃  STATUS: OPERATIONAL                                ║
+║ ┃                                                      ║
+║ ┃  ⚡ POWER                                            ║
+║ ┃    Battery: 78.5%                                   ║
+║ ┃    Voltage: 12.15V                                  ║
+║ ┃    Flight Time: 23.4m                               ║
+║ ┃                                                      ║
+║ ┃  🎯 DYNAMICS                                         ║
+║ ┃    Speed: 20.0 m/s                                  ║
+║ ┃    V-Speed: 0.2 m/s                                 ║
+║ ┃    Accel: 0.15 m/s²                                 ║
+║ ┃    Heading: 100.0°                                  ║
+║ ┃                                                      ║
+║ ┃  🎚️ ATTITUDE                                         ║
+║ ┃    Pitch: 2.3°                                      ║
+║ ┃    Roll: -1.8°                                      ║
+║ ┃    Yaw: 100.0°                                      ║
+║ ┃                                                      ║
+║ ┃  📡 SENSORS                                          ║
+║ ┃    GPS: ✓ 95%                                       ║
+║ ┃    Link: 98%                                        ║
+║ ┃    IMU: ✓                                           ║
+║ ┃                                                      ║
+║ ┃  📍 MISSION                                          ║
+║ ┃    ID: MISSION-001                                  ║
+║ ┃    WP: 3/10                                         ║
+║ ┃    Progress: 30%                                    ║
+║ ┃                                                      ║
+║ ┃  ████████████████░░░░░░░░  78%                      ║
+║ ┃      (Battery Level Indicator)                      ║
+╚═══════════════════════════════════════════════════════╝
+     \
+      \
+       \····> 🔵 DRONE TRACK ON PPI
+
+═══════════════════════════════════════════════════════════════════════
+                         PANEL FEATURES
+═══════════════════════════════════════════════════════════════════════
+
+✅ Health Status Indicator (Left Bar)
+   - 🟢 Green: All systems operational
+   - 🟡 Yellow: Warning condition
+   - 🔴 Red: Critical/Emergency
+
+✅ Semi-transparent Background
+   - Dark glass effect for visibility
+   - Doesn't obscure map underneath
+
+✅ Color-Coded Information
+   - Cyan: Headers and titles
+   - White: Normal data
+   - Yellow: Warnings
+   - Red: Critical alerts
+
+✅ Battery Visual Indicator
+   - Progress bar at bottom
+   - Color changes: Green → Yellow → Red
+
+✅ Connection Line
+   - Dotted line connects panel to drone
+   - Color matches health status
+
+✅ Auto-positioning
+   - Automatically positions to avoid screen edges
+   - Follows drone as it moves
+
+═══════════════════════════════════════════════════════════════════════
+                      REAL-TIME UPDATES
+═══════════════════════════════════════════════════════════════════════
+
+All data updates in real-time as the drone moves:
+
+⏱️  Battery Level        → Decreases based on flight dynamics
+⏱️  Flight Time         → Recalculated continuously
+⏱️  Speed/Acceleration  → Updates with position changes
+⏱️  Attitude (P/R/Y)    → Calculated from maneuvers
+⏱️  Sensor Status       → Real-time health monitoring
+⏱️  Mission Progress    → Waypoint advancement tracking
+
+═══════════════════════════════════════════════════════════════════════
+                     DYNAMICS CALCULATION
+═══════════════════════════════════════════════════════════════════════
+
+The drone object automatically calculates:
+
+📐 Bearing Change Rate
+   - Measures turning speed (deg/s)
+   - Updates roll angle based on turn rate
+
+📐 Acceleration
+   - Change in velocity over time
+   - Updates pitch angle based on acceleration
+
+📐 Climb Rate
+   - Vertical speed from altitude changes
+   - Affects battery consumption
+
+📐 Battery Drain Model
+   Base Drain × Speed Factor × Vertical Factor × Maneuver Factor
+   
+   Factors:
+   - Speed: Higher speed = more drain
+   - Vertical: Climbing/descending = more drain
+   - Maneuver: Turning/accelerating = more drain
+
+═══════════════════════════════════════════════════════════════════════
+                      HOW TO USE
+═══════════════════════════════════════════════════════════════════════
+
+1. Run the radar display application
+2. Wait for tracks to appear on PPI
+3. Right-click any track
+4. Select "🎯 Focus Track" from menu
+5. Detailed drone panel appears!
+6. Panel follows the drone automatically
+7. Right-click again to unfocus
+
+═══════════════════════════════════════════════════════════════════════
+                    TECHNICAL SPECIFICATIONS
+═══════════════════════════════════════════════════════════════════════
+
+Panel Size:        ~300x600 pixels (auto-sized)
+Font:              Consolas 8-9pt monospace
+Background:        Semi-transparent dark (α=240-250)
+Border:            2px health-status colored
+Update Rate:       Synchronized with track updates
+Memory Per Drone:  ~500 bytes
+Rendering:         QPainter with antialiasing
+
+═══════════════════════════════════════════════════════════════════════
