@@ -1217,7 +1217,7 @@ void CTrackLayer::paint(QPainter *pPainter)
         drawTooltip(pPainter, hoveredTrack, m_mousePos);
     }
 }
-}
+
 
 QPixmap CTrackLayer::getDefaultDronePixmap(int size, const QColor &color, const QColor &accent)
 {
