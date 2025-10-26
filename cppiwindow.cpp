@@ -356,6 +356,12 @@ void CPPIWindow::onDisableMap()
 void CPPIWindow::onZoomFitToScreen()
 {
     m_mapCanvas->zoomToFullExtent();
+    
+    // Trigger home position highlight animation after zoom
+    QTimer::singleShot(300, [this]() {
+        m_mapCanvas->mapHome();
+    });
+    
     m_statusLabel->setText("Zoomed to fit screen");
     qDebug() << "Zoom fit to screen requested";
 }

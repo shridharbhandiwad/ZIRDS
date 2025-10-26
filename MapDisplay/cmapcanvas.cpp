@@ -21,7 +21,7 @@
 #include  <QProcess>
 
 CMapCanvas::CMapCanvas(QWidget *parent) : QgsMapCanvas(parent),
-    _m_ppiLayer(nullptr),_m_trackLayer(nullptr), m_mapLayersVisible(true)
+    _m_ppiLayer(nullptr),_m_trackLayer(nullptr),_m_homeHighlightLayer(nullptr), m_mapLayersVisible(true)
 {
     QgsRectangle fixedWorldExtent(-180.0, -90.0, 180.0, 90.0);
 
@@ -261,6 +261,10 @@ void CMapCanvas::_loadLayers() {
 
     _m_trackLayer = new CTrackLayer(this);
     _m_trackLayer->show();
+
+    // Initialize home position highlight layer
+    _m_homeHighlightLayer = new CHomePositionHighlightLayer(this);
+    _m_homeHighlightLayer->setCenter(QgsPointXY(radarPos.x(), radarPos.y()));
 }
 
 void CMapCanvas::setMapLayersVisible(bool visible)
@@ -371,6 +375,13 @@ void CMapCanvas::mapHome() {
         QgsRectangle rectExtent = _m_ppiLayer->boundingRectWorld();
         setExtent(rectExtent);
         refresh();
+        
+        // Trigger expanding circles animation to highlight home position
+        if (_m_homeHighlightLayer != nullptr) {
+            QPointF radarPos = CDataWarehouse::getInstance()->getRadarPos();
+            _m_homeHighlightLayer->setCenter(QgsPointXY(radarPos.x(), radarPos.y()));
+            _m_homeHighlightLayer->startAnimation(3000); // 3 second animation
+        }
     }
 }
 

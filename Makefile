@@ -57,6 +57,7 @@ SOURCES       = CoordinateConverter.cpp \
 		MapDisplay/cchartswidget.cpp \
 		MapDisplay/cconfigpanelwidget.cpp \
 		MapDisplay/chealthmonitorwidget.cpp \
+		MapDisplay/chomepositionhighlightlayer.cpp \
 		MapDisplay/cinterfacespanelwidget.cpp \
 		MapDisplay/cpredictivemaintenancewidget.cpp \
 		MapDisplay/cppilayer.cpp \
@@ -80,6 +81,7 @@ SOURCES       = CoordinateConverter.cpp \
 		../obj/MOC/moc_cchartswidget.cpp \
 		../obj/MOC/moc_cconfigpanelwidget.cpp \
 		../obj/MOC/moc_chealthmonitorwidget.cpp \
+		../obj/MOC/moc_chomepositionhighlightlayer.cpp \
 		../obj/MOC/moc_cinterfacespanelwidget.cpp \
 		../obj/MOC/moc_cpredictivemaintenancewidget.cpp \
 		../obj/MOC/moc_cppilayer.cpp \
@@ -100,6 +102,7 @@ OBJECTS       = ../obj/OBJ/CoordinateConverter.o \
 		../obj/OBJ/cchartswidget.o \
 		../obj/OBJ/cconfigpanelwidget.o \
 		../obj/OBJ/chealthmonitorwidget.o \
+		../obj/OBJ/chomepositionhighlightlayer.o \
 		../obj/OBJ/cinterfacespanelwidget.o \
 		../obj/OBJ/cpredictivemaintenancewidget.o \
 		../obj/OBJ/cppilayer.o \
@@ -124,6 +127,7 @@ OBJECTS       = ../obj/OBJ/CoordinateConverter.o \
 		../obj/OBJ/moc_cchartswidget.o \
 		../obj/OBJ/moc_cconfigpanelwidget.o \
 		../obj/OBJ/moc_chealthmonitorwidget.o \
+		../obj/OBJ/moc_chomepositionhighlightlayer.o \
 		../obj/OBJ/moc_cinterfacespanelwidget.o \
 		../obj/OBJ/moc_cpredictivemaintenancewidget.o \
 		../obj/OBJ/moc_cppilayer.o \
@@ -604,6 +608,11 @@ compiler_moc_header_clean:
 		/usr/lib/qt5/bin/moc
 	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/shridhar/obj/MOC/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/shridhar/ZIRDS -I/usr/include/qgis -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtCharts -I/usr/include/x86_64-linux-gnu/qt5/QtMultimediaWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtXml -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtConcurrent -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include MapDisplay/chealthmonitorwidget.h -o ../obj/MOC/moc_chealthmonitorwidget.cpp
 
+../obj/MOC/moc_chomepositionhighlightlayer.cpp: MapDisplay/chomepositionhighlightlayer.h \
+		../obj/MOC/moc_predefs.h \
+		/usr/lib/qt5/bin/moc
+	/usr/lib/qt5/bin/moc $(DEFINES) --include /home/shridhar/obj/MOC/moc_predefs.h -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++ -I/home/shridhar/ZIRDS -I/usr/include/qgis -I/usr/include/x86_64-linux-gnu/qt5 -I/usr/include/x86_64-linux-gnu/qt5/QtQuickWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtCharts -I/usr/include/x86_64-linux-gnu/qt5/QtMultimediaWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtWidgets -I/usr/include/x86_64-linux-gnu/qt5/QtQuickControls2 -I/usr/include/x86_64-linux-gnu/qt5/QtQuick -I/usr/include/x86_64-linux-gnu/qt5/QtMultimedia -I/usr/include/x86_64-linux-gnu/qt5/QtGui -I/usr/include/x86_64-linux-gnu/qt5/QtXml -I/usr/include/x86_64-linux-gnu/qt5/QtQmlModels -I/usr/include/x86_64-linux-gnu/qt5/QtQml -I/usr/include/x86_64-linux-gnu/qt5/QtNetwork -I/usr/include/x86_64-linux-gnu/qt5/QtConcurrent -I/usr/include/x86_64-linux-gnu/qt5/QtCore -I/usr/include/c++/11 -I/usr/include/x86_64-linux-gnu/c++/11 -I/usr/include/c++/11/backward -I/usr/lib/gcc/x86_64-linux-gnu/11/include -I/usr/local/include -I/usr/include/x86_64-linux-gnu -I/usr/include MapDisplay/chomepositionhighlightlayer.h -o ../obj/MOC/moc_chomepositionhighlightlayer.cpp
+
 ../obj/MOC/moc_cinterfacespanelwidget.cpp: MapDisplay/cinterfacespanelwidget.h \
 		../obj/MOC/moc_predefs.h \
 		/usr/lib/qt5/bin/moc
@@ -747,6 +756,9 @@ compiler_clean: compiler_rcc_clean compiler_moc_predefs_clean compiler_moc_heade
 
 ../obj/OBJ/chealthmonitorwidget.o: MapDisplay/chealthmonitorwidget.cpp MapDisplay/chealthmonitorwidget.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../obj/OBJ/chealthmonitorwidget.o MapDisplay/chealthmonitorwidget.cpp
+
+../obj/OBJ/chomepositionhighlightlayer.o: MapDisplay/chomepositionhighlightlayer.cpp MapDisplay/chomepositionhighlightlayer.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../obj/OBJ/chomepositionhighlightlayer.o MapDisplay/chomepositionhighlightlayer.cpp
 
 ../obj/OBJ/cinterfacespanelwidget.o: MapDisplay/cinterfacespanelwidget.cpp MapDisplay/cinterfacespanelwidget.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../obj/OBJ/cinterfacespanelwidget.o MapDisplay/cinterfacespanelwidget.cpp
@@ -909,6 +921,9 @@ compiler_clean: compiler_rcc_clean compiler_moc_predefs_clean compiler_moc_heade
 
 ../obj/OBJ/moc_chealthmonitorwidget.o: ../obj/MOC/moc_chealthmonitorwidget.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../obj/OBJ/moc_chealthmonitorwidget.o ../obj/MOC/moc_chealthmonitorwidget.cpp
+
+../obj/OBJ/moc_chomepositionhighlightlayer.o: ../obj/MOC/moc_chomepositionhighlightlayer.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../obj/OBJ/moc_chomepositionhighlightlayer.o ../obj/MOC/moc_chomepositionhighlightlayer.cpp
 
 ../obj/OBJ/moc_cinterfacespanelwidget.o: ../obj/MOC/moc_cinterfacespanelwidget.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ../obj/OBJ/moc_cinterfacespanelwidget.o ../obj/MOC/moc_cinterfacespanelwidget.cpp
