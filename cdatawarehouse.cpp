@@ -25,43 +25,57 @@ CDataWarehouse::CDataWarehouse(QObject *parent) : QObject(parent), _m_nHistoryLi
 {
     _m_RadarPos = QPointF(77.2946, 13.2716);
 
-    stTrackRecvInfo info1;
-    info1.nTrkId = 1;
-    info1.x = 7000;
-    info1.y = 0;
-    info1.z = 0;
-    info1.velocity = 20;
-    info1.heading = 100;
-    info1.nTrackIden = TRACK_IDENTITY_FRIEND;
+//    stTrackRecvInfo info1;
+//    info1.nTrkId = 1;
+//    info1.x = 7000;
+//    info1.y = 0;
+//    info1.z = 0;
+//    info1.velocity = 20;
+//    info1.heading = 100;
+//    info1.nTrackIden = TRACK_IDENTITY_FRIEND;
 
-    stTrackRecvInfo info2;
-    info2.nTrkId = 2;
-    info2.x = -4000;
-    info2.y = 0;
-    info2.z = 0;
-    info2.velocity = 20;
-    info2.heading = 200;
-    info2.nTrackIden = TRACK_IDENTITY_HOSTILE;
+//    stTrackRecvInfo info2;
+//    info2.nTrkId = 2;
+//    info2.x = -4000;
+//    info2.y = 0;
+//    info2.z = 0;
+//    info2.velocity = 20;
+//    info2.heading = 200;
+//    info2.nTrackIden = TRACK_IDENTITY_HOSTILE;
 
-    stTrackRecvInfo info3;
-    info3.nTrkId = 3;
-    info3.x = -2000;
-    info3.y = 0;
-    info3.z = 0;
-    info3.velocity = 35;
-    info3.heading = 200;
-    info3.nTrackIden = TRACK_IDENTITY_UNKNOWN;
+//    stTrackRecvInfo info3;
+//    info3.nTrkId = 3;
+//    info3.x = -2000;
+//    info3.y = 0;
+//    info3.z = 0;
+//    info3.velocity = 35;
+//    info3.heading = 200;
+//    info3.nTrackIden = TRACK_IDENTITY_UNKNOWN;
 
 
-    slotUpdateTrackData(info1);
-    slotUpdateTrackData(info2);
-    slotUpdateTrackData(info3);
+//    slotUpdateTrackData(info1);
+//    slotUpdateTrackData(info2);
+//    slotUpdateTrackData(info3);
 
     connect(&_m_timeTrackTimeout,SIGNAL(timeout()),this,SLOT(slotClearTracksOnTimeOut()));
-    _m_timeTrackTimeout.start(100000);
+    _m_timeTrackTimeout.start(5000);
+
+//    _m_UdpRecvr.startListening(2025);
+//    connect(&_m_UdpRecvr,SIGNAL(signalUpdateTrackData(stTrackRecvInfo)),this,SLOT(slotUpdateTrackData(stTrackRecvInfo)));
+
+
+    // Connect signal/slot BEFORE starting to listen - use new-style connect for type safety
+    bool connected = connect(&_m_UdpRecvr, &CUdpReceiver::signalUpdateTrackData,
+                            this, &CDataWarehouse::slotUpdateTrackData,
+                            Qt::DirectConnection);
+
+    if (connected) {
+        qDebug() << "[CDataWarehouse] Signal/slot connection established successfully";
+    } else {
+        qCritical() << "[CDataWarehouse] FAILED to establish signal/slot connection!";
+    }
 
     _m_UdpRecvr.startListening(2025);
-    connect(&_m_UdpRecvr,SIGNAL(signalUpdateTrackData(stTrackRecvInfo)),this,SLOT(slotUpdateTrackData(stTrackRecvInfo)));
 }
 
 QList<stTrackDisplayInfo> CDataWarehouse::getTrackList() {
