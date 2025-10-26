@@ -70,9 +70,10 @@ void CPPIWindow::setupUI()
     splitter->addWidget(m_mapCanvas);
     splitter->addWidget(m_trackTable);
 
-    // Set splitter proportions (70% map, 30% table)
-    splitter->setStretchFactor(1, 4);
-    splitter->setSizes({940, 380});
+    // Set splitter proportions (75% map, 25% table = 3/4 and 1/4)
+    splitter->setStretchFactor(0, 3);
+    splitter->setStretchFactor(1, 1);
+    splitter->setSizes({990, 330});
 
     // Store splitter reference for later use
     m_splitter = splitter;
