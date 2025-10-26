@@ -21,7 +21,8 @@ CMapMainWindow::CMapMainWindow(QWidget *parent) :
     m_settings(new QSettings("RadarDisplay", "MainWindow", this))
 {
     ui->setupUi(this);
-    setWindowTitle("🎯 Radar Display - Window Manager");
+    setWindowTitle("🎯 ZIRDS - Window Manager");
+    setWindowIcon(QIcon(":/images/resources/zoppler_logo.png"));
     
     setupMonitors();
     setupDualWindows();
@@ -38,7 +39,22 @@ CMapMainWindow::CMapMainWindow(QWidget *parent) :
     
     // Auto-arrange for dual monitor if available
     if (m_isDualMonitor) {
-        QTimer::singleShot(500, this, &CMapMainWindow::onArrangeDualMonitor);
+        QTimer::singleShot(500, [this]() {
+            onArrangeDualMonitor();
+            // Ensure PPI stays on top after dual monitor arrangement
+            QTimer::singleShot(200, [this]() {
+                m_ppiWindow->raise();
+                m_ppiWindow->activateWindow();
+            });
+        });
+    } else {
+        // For single monitor, ensure windows are maximized and PPI is on front
+        QTimer::singleShot(500, [this]() {
+            m_ppiWindow->showMaximized();
+            m_controlsWindow->showMaximized();
+            m_ppiWindow->raise();
+            m_ppiWindow->activateWindow();
+        });
     }
 }
 
@@ -52,15 +68,19 @@ void CMapMainWindow::setupDualWindows()
 {
     // Create PPI window (Map + Track Table)
     m_ppiWindow = new CPPIWindow();
-    m_ppiWindow->setWindowTitle("🎯 PPI Display - Map & Tracks");
+    m_ppiWindow->setWindowTitle("🎯 ZIRDS - PPI Display | © Zoppler Systems");
     
     // Create Controls window (All control panels)
     m_controlsWindow = new CControlsWindow();
-    m_controlsWindow->setWindowTitle("🎛️ Control Center - System Management");
+    m_controlsWindow->setWindowTitle("🎛️ ZIRDS - Control Center | © Zoppler Systems");
     
-    // Show both windows
-    m_ppiWindow->show();
-    m_controlsWindow->show();
+    // Show both windows maximized
+    m_ppiWindow->showMaximized();
+    m_controlsWindow->showMaximized();
+    
+    // Set PPI window as front (welcome window)
+    m_ppiWindow->raise();
+    m_ppiWindow->activateWindow();
 }
 
 void CMapMainWindow::connectWindowSignals()
