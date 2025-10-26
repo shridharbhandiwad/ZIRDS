@@ -74,6 +74,31 @@ void CChartsWidget::setupUI()
     connect(m_trackFilterEdit, &QLineEdit::textChanged, this, &CChartsWidget::onTrackFilterChanged);
     toolbarLayout->addWidget(m_trackFilterEdit);
     
+    // Pan mode button
+    m_panModeButton = new QPushButton("✋ Pan");
+    m_panModeButton->setToolTip("Toggle Panning Mode (or use Right-Click drag)");
+    m_panModeButton->setCheckable(true);
+    m_panModeButton->setStyleSheet(
+        "QPushButton {"
+        "   background-color: #ffffff;"
+        "   color: #000000;"
+        "   border: 2px solid #000000;"
+        "   border-radius: 4px;"
+        "   padding: 4px 8px;"
+        "   font-weight: bold;"
+        "}"
+        "QPushButton:hover {"
+        "   background-color: #f0f0f0;"
+        "}"
+        "QPushButton:checked {"
+        "   background-color: #3b82f6;"
+        "   color: #ffffff;"
+        "   border: 2px solid #2563eb;"
+        "}"
+    );
+    connect(m_panModeButton, &QPushButton::toggled, this, &CChartsWidget::onPanModeToggled);
+    toolbarLayout->addWidget(m_panModeButton);
+    
     // Zoom controls
     QPushButton *btnZoomIn = new QPushButton("🔍+");
     btnZoomIn->setToolTip("Zoom In");
@@ -318,7 +343,7 @@ void CChartsWidget::onGridToggled(bool checked)
     if (m_speedTimeChart) m_speedTimeChart->setGridEnabled(checked);
 }
 
-void CChartsWidget::onTrackFilterChanged(const QString &text)
+void CChartsWidget::onTrackFilterChanged(const QString &/*text*/)
 {
     updateTrackFilter();
 }
@@ -399,6 +424,18 @@ void CChartsWidget::onZoomReset()
     if (m_speedTimeChart && m_speedTimeChart->isVisible()) m_speedTimeChart->resetZoom();
 }
 
+void CChartsWidget::onPanModeToggled(bool checked)
+{
+    if (m_bscopeChart) m_bscopeChart->setPanMode(checked);
+    if (m_cscopeChart) m_cscopeChart->setPanMode(checked);
+    if (m_rhiChart) m_rhiChart->setPanMode(checked);
+    if (m_rangeTimeChart) m_rangeTimeChart->setPanMode(checked);
+    if (m_azimuthTimeChart) m_azimuthTimeChart->setPanMode(checked);
+    if (m_elevationTimeChart) m_elevationTimeChart->setPanMode(checked);
+    if (m_rcsTimeChart) m_rcsTimeChart->setPanMode(checked);
+    if (m_speedTimeChart) m_speedTimeChart->setPanMode(checked);
+}
+
 void CChartsWidget::applyRichStyle()
 {
     setStyleSheet(
@@ -455,7 +492,8 @@ CCustomChart::CCustomChart(ChartType type, QWidget *parent)
       m_zoomLevel(1.0),
       m_gridEnabled(true),
       m_isPanning(false),
-      m_isSelecting(false)
+      m_isSelecting(false),
+      m_panModeEnabled(false)
 {
     setMinimumHeight(300);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -572,6 +610,16 @@ void CCustomChart::resetZoom()
     m_zoomLevel = 1.0;
     m_panOffset = QPointF(0, 0);
     update();
+}
+
+void CCustomChart::setPanMode(bool enabled)
+{
+    m_panModeEnabled = enabled;
+    if (enabled) {
+        setCursor(Qt::OpenHandCursor);
+    } else {
+        setCursor(Qt::CrossCursor);
+    }
 }
 
 void CCustomChart::paintEvent(QPaintEvent *event)
@@ -905,6 +953,9 @@ void CCustomChart::drawGrid(QPainter *painter, const QRectF &rect)
         double y = rect.top() + (rect.height() / 10) * i;
         painter->drawLine(QPointF(rect.left(), y), QPointF(rect.right(), y));
     }
+    
+    // Draw axis values
+    drawAxisValues(painter, rect);
 }
 
 void CCustomChart::drawAxes(QPainter *painter, const QRectF &rect, const QString &xLabel, const QString &yLabel)
@@ -922,7 +973,7 @@ void CCustomChart::drawAxes(QPainter *painter, const QRectF &rect, const QString
     painter->setFont(QFont("Arial", 10, QFont::Bold));
 
     // X label
-    painter->drawText(QRectF(rect.left(), rect.bottom() + 20, rect.width(), 30),
+    painter->drawText(QRectF(rect.left(), rect.bottom() + 35, rect.width(), 25),
                      Qt::AlignCenter, xLabel);
 
     // Y label (rotated)
@@ -931,6 +982,79 @@ void CCustomChart::drawAxes(QPainter *painter, const QRectF &rect, const QString
     painter->rotate(-90);
     painter->drawText(QRectF(-100, 0, 200, 30), Qt::AlignCenter, yLabel);
     painter->restore();
+}
+
+void CCustomChart::drawAxisValues(QPainter *painter, const QRectF &rect)
+{
+    painter->setPen(QColor(71, 85, 105));
+    painter->setFont(QFont("Arial", 8));
+    
+    // Determine value ranges based on chart type
+    double xMin = 0.0, xMax = 100.0;
+    double yMin = 0.0, yMax = 100.0;
+    
+    switch (m_chartType) {
+        case BScope:
+            xMin = -180.0; xMax = 180.0;  // Azimuth
+            yMin = 0.0; yMax = 50.0;      // Range in km
+            break;
+        case CScope:
+            xMin = -180.0; xMax = 180.0;  // Azimuth
+            yMin = -90.0; yMax = 90.0;    // Elevation
+            break;
+        case RHI:
+            xMin = 0.0; xMax = 50.0;      // Range in km
+            yMin = 0.0; yMax = 15.0;      // Height in km
+            break;
+        case RangeTime:
+            xMin = -60.0; xMax = 0.0;     // Time in seconds (past 60s)
+            yMin = 0.0; yMax = 50.0;      // Range in km
+            break;
+        case AzimuthTime:
+            xMin = -60.0; xMax = 0.0;     // Time in seconds
+            yMin = -180.0; yMax = 180.0;  // Azimuth
+            break;
+        case ElevationTime:
+            xMin = -60.0; xMax = 0.0;     // Time in seconds
+            yMin = -90.0; yMax = 90.0;    // Elevation
+            break;
+        case RCSTime:
+            xMin = -60.0; xMax = 0.0;     // Time in seconds
+            yMin = -20.0; yMax = 60.0;    // RCS in dBsm
+            break;
+        case SpeedTime:
+            xMin = -60.0; xMax = 0.0;     // Time in seconds
+            yMin = 0.0; yMax = 100.0;     // Speed in m/s
+            break;
+    }
+    
+    // Draw X axis values
+    for (int i = 0; i <= 10; ++i) {
+        double x = rect.left() + (rect.width() / 10) * i;
+        double value = xMin + (xMax - xMin) * i / 10.0;
+        QString valueText = QString::number(value, 'f', 1);
+        
+        // Draw tick mark
+        painter->drawLine(QPointF(x, rect.bottom()), QPointF(x, rect.bottom() + 5));
+        
+        // Draw value text
+        QRectF textRect(x - 30, rect.bottom() + 8, 60, 15);
+        painter->drawText(textRect, Qt::AlignCenter, valueText);
+    }
+    
+    // Draw Y axis values
+    for (int i = 0; i <= 10; ++i) {
+        double y = rect.top() + (rect.height() / 10) * i;
+        double value = yMax - (yMax - yMin) * i / 10.0;  // Inverted because y increases downward
+        QString valueText = QString::number(value, 'f', 1);
+        
+        // Draw tick mark
+        painter->drawLine(QPointF(rect.left() - 5, y), QPointF(rect.left(), y));
+        
+        // Draw value text
+        QRectF textRect(rect.left() - 50, y - 8, 45, 16);
+        painter->drawText(textRect, Qt::AlignRight | Qt::AlignVCenter, valueText);
+    }
 }
 
 void CCustomChart::drawTooltip(QPainter *painter)
@@ -1058,8 +1182,8 @@ void CCustomChart::mousePressEvent(QMouseEvent *event)
         return; // Only interact within chart area
     }
     
-    if (event->button() == Qt::RightButton) {
-        // Start panning with right mouse button
+    if (event->button() == Qt::RightButton || (event->button() == Qt::LeftButton && m_panModeEnabled)) {
+        // Start panning with right mouse button or left button in pan mode
         m_isPanning = true;
         m_lastMousePos = event->pos();
         setCursor(Qt::ClosedHandCursor);
@@ -1074,12 +1198,16 @@ void CCustomChart::mousePressEvent(QMouseEvent *event)
 
 void CCustomChart::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (event->button() == Qt::RightButton && m_isPanning) {
+    if ((event->button() == Qt::RightButton || (event->button() == Qt::LeftButton && m_panModeEnabled)) && m_isPanning) {
         // End panning
         m_isPanning = false;
-        setCursor(Qt::CrossCursor);
+        if (m_panModeEnabled) {
+            setCursor(Qt::OpenHandCursor);
+        } else {
+            setCursor(Qt::CrossCursor);
+        }
     } else if (event->button() == Qt::LeftButton && m_isSelecting) {
-        // Apply selection zoom
+        // Apply selection zoom and center the selected region
         QRectF chartRect = rect().adjusted(60, 40, -40, -60);
         QRectF selectionRect = QRectF(m_selectionStart, m_selectionEnd).normalized();
         
@@ -1093,13 +1221,19 @@ void CCustomChart::mouseReleaseEvent(QMouseEvent *event)
             double newZoomLevel = qMin(zoomX, zoomY) * m_zoomLevel;
             newZoomLevel = qBound(0.5, newZoomLevel, 5.0);
             
-            // Calculate pan offset to center the selection
+            // Calculate the center of the selection relative to chart rect
             QPointF selectionCenter = selectionRect.center();
             QPointF chartCenter = chartRect.center();
-            QPointF offset = (chartCenter - selectionCenter) * (newZoomLevel / m_zoomLevel);
             
+            // First, adjust for the current zoom and pan
+            // The offset needed is the difference between chart center and selection center
+            // scaled by the zoom change, plus current offset
+            QPointF deltaToCenter = chartCenter - selectionCenter;
+            
+            // Apply the offset to center the selection
+            // We need to account for both the current offset and the new zoom level
+            m_panOffset = m_panOffset * (newZoomLevel / m_zoomLevel) + deltaToCenter * (newZoomLevel / m_zoomLevel);
             m_zoomLevel = newZoomLevel;
-            m_panOffset += offset;
         }
         
         m_isSelecting = false;
@@ -1124,7 +1258,11 @@ void CCustomChart::leaveEvent(QEvent *event)
     m_hoveredIndex = -1;
     m_isPanning = false;
     m_isSelecting = false;
-    setCursor(Qt::CrossCursor);
+    if (m_panModeEnabled) {
+        setCursor(Qt::OpenHandCursor);
+    } else {
+        setCursor(Qt::CrossCursor);
+    }
     update();
 }
 
