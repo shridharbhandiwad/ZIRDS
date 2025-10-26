@@ -8,7 +8,11 @@
 #include <QComboBox>
 #include <QCheckBox>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QLabel>
+#include <QLineEdit>
+#include <QSlider>
+#include <QSet>
 
 // Forward declarations
 class CCustomChart;
@@ -25,6 +29,11 @@ private slots:
     void updateCharts();
     void onChartTypeChanged(int index);
     void exportChart();
+    void onGridToggled(bool checked);
+    void onTrackFilterChanged(const QString &text);
+    void onZoomIn();
+    void onZoomOut();
+    void onZoomReset();
 
 private:
     void setupUI();
@@ -48,6 +57,14 @@ private:
     CCustomChart *m_speedTimeChart;
 
     QComboBox *m_comboTimeSeriesType;
+    
+    // Control widgets
+    QCheckBox *m_gridCheckbox;
+    QLineEdit *m_trackFilterEdit;
+    QSet<int> m_filteredTrackIds;
+    
+    // Helper methods
+    void updateTrackFilter();
 };
 
 // Custom Chart Widget for radar displays
@@ -72,6 +89,13 @@ public:
 
     void setChartType(ChartType type);
     void updateData();
+    
+    // Control methods
+    void setGridEnabled(bool enabled);
+    void setTrackFilter(const QSet<int> &trackIds);
+    void zoomIn();
+    void zoomOut();
+    void resetZoom();
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -98,6 +122,8 @@ private:
     bool m_showTooltip;
     double m_zoomLevel;
     QPointF m_panOffset;
+    bool m_gridEnabled;
+    QSet<int> m_filteredTrackIds;
 
     // Data storage
     struct TrackData {
