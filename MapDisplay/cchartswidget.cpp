@@ -39,7 +39,7 @@ void CChartsWidget::setupUI()
     QHBoxLayout *toolbarLayout = new QHBoxLayout();
 
     QLabel *lblTitle = new QLabel("📊 Radar Display Charts");
-    lblTitle->setStyleSheet("color: #1e293b; font-size: 14px; font-weight: bold;");
+    lblTitle->setStyleSheet("color: #000000; font-size: 14px; font-weight: bold;");
     toolbarLayout->addWidget(lblTitle);
 
     toolbarLayout->addStretch();
@@ -47,15 +47,15 @@ void CChartsWidget::setupUI()
     QPushButton *btnExport = new QPushButton("Export");
     btnExport->setStyleSheet(
         "QPushButton {"
-        "   background-color: #3b82f6;"
-        "   color: white;"
-        "   border: none;"
+        "   background-color: #ffffff;"
+        "   color: #000000;"
+        "   border: 2px solid #000000;"
         "   border-radius: 6px;"
         "   padding: 6px 12px;"
         "   font-weight: bold;"
         "}"
         "QPushButton:hover {"
-        "   background-color: #2563eb;"
+        "   background-color: #f0f0f0;"
         "}"
     );
     connect(btnExport, &QPushButton::clicked, this, &CChartsWidget::exportChart);
@@ -87,7 +87,7 @@ void CChartsWidget::createBScopeTab()
     layout->addWidget(m_bscopeChart);
 
     QLabel *lblInfo = new QLabel("📡 B-Scope: Range vs Azimuth Display");
-    lblInfo->setStyleSheet("color: #64748b; font-size: 11px; padding: 4px;");
+    lblInfo->setStyleSheet("color: #000000; font-size: 11px; padding: 4px;");
     lblInfo->setAlignment(Qt::AlignCenter);
     layout->addWidget(lblInfo);
 
@@ -237,39 +237,42 @@ void CChartsWidget::applyRichStyle()
 {
     setStyleSheet(
         "QDockWidget {"
-        "   background-color: #f8fafc;"
-        "   color: #1e293b;"
+        "   background-color: #ffffff;"
+        "   color: #000000;"
         "}"
         "QDockWidget::title {"
-        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #3b82f6, stop:1 #2563eb);"
+        "   background-color: #ffffff;"
+        "   border: 2px solid #000000;"
         "   padding: 10px;"
         "   text-align: center;"
+        "   color: #000000;"
         "}"
     );
 
     m_tabWidget->setStyleSheet(
         "QTabWidget::pane {"
-        "   background-color: #f8fafc;"
-        "   border: 2px solid #e2e8f0;"
+        "   background-color: #ffffff;"
+        "   border: 2px solid #000000;"
         "   border-radius: 8px;"
         "}"
         "QTabBar::tab {"
-        "   background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #f1f5f9, stop:1 #e2e8f0);"
-        "   color: #475569;"
+        "   background-color: #ffffff;"
+        "   color: #000000;"
         "   padding: 12px 20px;"
         "   margin: 2px;"
+        "   border: 2px solid #000000;"
         "   border-top-left-radius: 8px;"
         "   border-top-right-radius: 8px;"
         "   font-size: 12px;"
         "   font-weight: bold;"
         "}"
         "QTabBar::tab:selected {"
-        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #3b82f6, stop:1 #2563eb);"
-        "   color: white;"
+        "   background-color: #e0e0e0;"
+        "   color: #000000;"
         "}"
         "QTabBar::tab:hover:!selected {"
-        "   background: #e2e8f0;"
-        "   color: #1e293b;"
+        "   background-color: #f0f0f0;"
+        "   color: #000000;"
         "}"
     );
 }

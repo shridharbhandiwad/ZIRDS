@@ -25,7 +25,7 @@ Rectangle {
 //                anchors.verticalCenter: parent.verticalCenter
 //                style: GaugeStyle {
 //                    valueBar: Rectangle { color: "#3b82f6" }
-//                    background: Rectangle { color: "#f8fafc" }
+//                    background: Rectangle { color: "#ffffff" }
 //                }
 //            }
 
@@ -49,13 +49,14 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            color: "#f8fafc"
+            color: "#ffffff"
             radius: 10
-            border.color: "#3b82f6"
+            border.color: "#000000"
+            border.width: 2
             Text {
                 anchors.centerIn: parent
                 text: "Radar Placeholder"
-                color: "#1e293b"
+                color: "#000000"
             }
         }
     }
