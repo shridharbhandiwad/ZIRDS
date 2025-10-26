@@ -16,8 +16,7 @@
 #include  "customgradiantfillsymbollayer.h"
 #include <qgslinesymbollayer.h>
 #include"globalmacros.h"
-#include "../cdatawarehouse.h"
-#include "../globalstructs.h"
+#include "cdatawarehouse.h"
 #include  <QFileInfo>
 #include  <QProcess>
 
@@ -373,55 +372,6 @@ void CMapCanvas::mapHome() {
         setExtent(rectExtent);
         refresh();
     }
-}
-
-void CMapCanvas::zoomToTracksAndHome() {
-    // Start with the PPI layer (home) bounding box
-    QgsRectangle combinedExtent;
-    
-    if (_m_ppiLayer != nullptr) {
-        combinedExtent = _m_ppiLayer->boundingRectWorld();
-    } else {
-        // Fallback to a default extent if PPI layer is not available
-        combinedExtent = QgsRectangle(-1, -1, 1, 1);
-    }
-    
-    // Get all tracks and expand the bounding box to include them
-    QList<stTrackDisplayInfo> tracks = CDataWarehouse::getInstance()->getTrackList();
-    
-    for (const stTrackDisplayInfo &track : tracks) {
-        // Create a point for this track position
-        QgsPointXY trackPoint(track.lon, track.lat);
-        
-        // Expand the extent to include this track
-        if (tracks.indexOf(track) == 0 && _m_ppiLayer == nullptr) {
-            // First track and no PPI layer
-            combinedExtent = QgsRectangle(trackPoint, trackPoint);
-        } else {
-            combinedExtent.combineExtentWith(trackPoint.x(), trackPoint.y());
-        }
-    }
-    
-    // Add padding/margin for better visualization (20% on each side)
-    double paddingX = combinedExtent.width() * 0.2;
-    double paddingY = combinedExtent.height() * 0.2;
-    
-    // Handle case where all points are at the same location or very close
-    if (paddingX < 0.01) paddingX = 0.1;  // Minimum padding in degrees
-    if (paddingY < 0.01) paddingY = 0.1;
-    
-    QgsRectangle paddedExtent(
-        combinedExtent.xMinimum() - paddingX,
-        combinedExtent.yMinimum() - paddingY,
-        combinedExtent.xMaximum() + paddingX,
-        combinedExtent.yMaximum() + paddingY
-    );
-    
-    // Apply the extent and refresh
-    setExtent(paddedExtent);
-    refresh();
-    
-    qDebug() << "Zoomed to tracks and home position with magnified view";
 }
 
 void CMapCanvas::zoomBy(double factor)

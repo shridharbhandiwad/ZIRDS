@@ -56,6 +56,15 @@ struct stTrackDisplayInfo {
     QList<stTrackHistoryPoint> historyPoints;  //!< Track history points
     bool showHistory;           //!< Flag to show/hide history trail
     CDrone* pDrone;             //!< Pointer to associated drone object (nullptr if not a drone)
+
+    // Equality operator
+    bool operator==(const stTrackDisplayInfo &other) const {
+        return nTrkId == other.nTrkId &&
+               qFuzzyCompare(x, other.x) &&
+               qFuzzyCompare(y, other.y) &&
+               qFuzzyCompare(z, other.z) &&
+               qFuzzyCompare(velocity, other.velocity);
+    }
 };
 
 #pragma pack()
