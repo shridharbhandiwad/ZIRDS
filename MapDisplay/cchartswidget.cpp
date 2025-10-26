@@ -453,7 +453,9 @@ CCustomChart::CCustomChart(ChartType type, QWidget *parent)
       m_hoveredIndex(-1),
       m_showTooltip(false),
       m_zoomLevel(1.0),
-      m_gridEnabled(true)
+      m_gridEnabled(true),
+      m_isPanning(false),
+      m_isSelecting(false)
 {
     setMinimumHeight(300);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -602,6 +604,11 @@ void CCustomChart::paintEvent(QPaintEvent *event)
     // Draw tooltip if hovering
     if (m_showTooltip) {
         drawTooltip(&painter);
+    }
+    
+    // Draw selection rectangle if selecting
+    if (m_isSelecting) {
+        drawSelectionRect(&painter);
     }
 }
 
@@ -990,18 +997,115 @@ void CCustomChart::drawTooltip(QPainter *painter)
     }
 }
 
+void CCustomChart::drawSelectionRect(QPainter *painter)
+{
+    if (!m_isSelecting) {
+        return;
+    }
+    
+    QRectF selectionRect = QRectF(m_selectionStart, m_selectionEnd).normalized();
+    
+    // Draw semi-transparent fill
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(QColor(59, 130, 246, 50)); // Blue with transparency
+    painter->drawRect(selectionRect);
+    
+    // Draw border
+    painter->setPen(QPen(QColor(59, 130, 246), 2, Qt::DashLine));
+    painter->setBrush(Qt::NoBrush);
+    painter->drawRect(selectionRect);
+    
+    // Draw corner indicators
+    painter->setPen(Qt::NoPen);
+    painter->setBrush(QColor(59, 130, 246));
+    QRectF topLeft(selectionRect.topLeft() - QPointF(3, 3), QSizeF(6, 6));
+    QRectF topRight(selectionRect.topRight() - QPointF(3, 3), QSizeF(6, 6));
+    QRectF bottomLeft(selectionRect.bottomLeft() - QPointF(3, 3), QSizeF(6, 6));
+    QRectF bottomRight(selectionRect.bottomRight() - QPointF(3, 3), QSizeF(6, 6));
+    painter->drawRect(topLeft);
+    painter->drawRect(topRight);
+    painter->drawRect(bottomLeft);
+    painter->drawRect(bottomRight);
+}
+
 void CCustomChart::mouseMoveEvent(QMouseEvent *event)
 {
     m_mousePos = event->pos();
-    m_hoveredIndex = findNearestDataPoint(m_mousePos);
-    m_showTooltip = (m_hoveredIndex != -1);
-    update();
+    
+    if (m_isPanning) {
+        // Update pan offset based on mouse movement
+        QPointF delta = event->pos() - m_lastMousePos;
+        m_panOffset += delta;
+        m_lastMousePos = event->pos();
+        update();
+    } else if (m_isSelecting) {
+        // Update selection rectangle
+        m_selectionEnd = event->pos();
+        update();
+    } else {
+        // Normal hover behavior
+        m_hoveredIndex = findNearestDataPoint(m_mousePos);
+        m_showTooltip = (m_hoveredIndex != -1);
+        update();
+    }
 }
 
 void CCustomChart::mousePressEvent(QMouseEvent *event)
 {
-    Q_UNUSED(event);
-    // Handle click events if needed
+    QRectF chartRect = rect().adjusted(60, 40, -40, -60);
+    
+    if (!chartRect.contains(event->pos())) {
+        return; // Only interact within chart area
+    }
+    
+    if (event->button() == Qt::RightButton) {
+        // Start panning with right mouse button
+        m_isPanning = true;
+        m_lastMousePos = event->pos();
+        setCursor(Qt::ClosedHandCursor);
+    } else if (event->button() == Qt::LeftButton) {
+        // Start selection zoom with left mouse button
+        m_isSelecting = true;
+        m_selectionStart = event->pos();
+        m_selectionEnd = event->pos();
+        setCursor(Qt::CrossCursor);
+    }
+}
+
+void CCustomChart::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::RightButton && m_isPanning) {
+        // End panning
+        m_isPanning = false;
+        setCursor(Qt::CrossCursor);
+    } else if (event->button() == Qt::LeftButton && m_isSelecting) {
+        // Apply selection zoom
+        QRectF chartRect = rect().adjusted(60, 40, -40, -60);
+        QRectF selectionRect = QRectF(m_selectionStart, m_selectionEnd).normalized();
+        
+        // Only zoom if selection is large enough (minimum 20x20 pixels)
+        if (selectionRect.width() > 20 && selectionRect.height() > 20 && 
+            chartRect.intersects(selectionRect)) {
+            
+            // Calculate zoom based on selection size
+            double zoomX = chartRect.width() / selectionRect.width();
+            double zoomY = chartRect.height() / selectionRect.height();
+            double newZoomLevel = qMin(zoomX, zoomY) * m_zoomLevel;
+            newZoomLevel = qBound(0.5, newZoomLevel, 5.0);
+            
+            // Calculate pan offset to center the selection
+            QPointF selectionCenter = selectionRect.center();
+            QPointF chartCenter = chartRect.center();
+            QPointF offset = (chartCenter - selectionCenter) * (newZoomLevel / m_zoomLevel);
+            
+            m_zoomLevel = newZoomLevel;
+            m_panOffset += offset;
+        }
+        
+        m_isSelecting = false;
+        setCursor(Qt::CrossCursor);
+        update();
+    }
 }
 
 void CCustomChart::wheelEvent(QWheelEvent *event)
@@ -1009,7 +1113,7 @@ void CCustomChart::wheelEvent(QWheelEvent *event)
     // Zoom functionality
     double delta = event->angleDelta().y() / 120.0;
     m_zoomLevel += delta * 0.1;
-    m_zoomLevel = qBound(0.5, m_zoomLevel, 3.0);
+    m_zoomLevel = qBound(0.5, m_zoomLevel, 5.0);
     update();
 }
 
@@ -1018,6 +1122,9 @@ void CCustomChart::leaveEvent(QEvent *event)
     Q_UNUSED(event);
     m_showTooltip = false;
     m_hoveredIndex = -1;
+    m_isPanning = false;
+    m_isSelecting = false;
+    setCursor(Qt::CrossCursor);
     update();
 }
 
