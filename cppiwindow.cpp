@@ -355,9 +355,9 @@ void CPPIWindow::onDisableMap()
 
 void CPPIWindow::onZoomFitToScreen()
 {
-    m_mapCanvas->zoomToFullExtent();
-    m_statusLabel->setText("Zoomed to fit screen");
-    qDebug() << "Zoom fit to screen requested";
+    m_mapCanvas->zoomToTracksAndHome();
+    m_statusLabel->setText("Zoomed to fit tracks and home");
+    qDebug() << "Zoom fit to tracks and home requested";
 }
 
 void CPPIWindow::onMapHome()
