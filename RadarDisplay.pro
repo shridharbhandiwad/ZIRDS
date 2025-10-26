@@ -43,6 +43,7 @@ SOURCES += \
         MapDisplay/cchartswidget.cpp \
         MapDisplay/cconfigpanelwidget.cpp \
         MapDisplay/chealthmonitorwidget.cpp \
+        MapDisplay/chomepositionhighlightlayer.cpp \
         MapDisplay/cinterfacespanelwidget.cpp \
         MapDisplay/cpredictivemaintenancewidget.cpp \
         MapDisplay/cppilayer.cpp \
@@ -69,6 +70,7 @@ HEADERS += \
         MapDisplay/cchartswidget.h \
         MapDisplay/cconfigpanelwidget.h \
         MapDisplay/chealthmonitorwidget.h \
+        MapDisplay/chomepositionhighlightlayer.h \
         MapDisplay/cinterfacespanelwidget.h \
         MapDisplay/cpredictivemaintenancewidget.h \
         MapDisplay/cppilayer.h \

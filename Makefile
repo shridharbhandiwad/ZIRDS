@@ -306,7 +306,8 @@ first: all
 	@test -d ../bin/ || mkdir -p ../bin/
 	$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJCOMP) $(LIBS)
 
-Makefile: RadarDisplay.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++/qmake.conf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
+# Disabled Makefile regeneration (qmake not available)
+Makefile_disabled: RadarDisplay.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++/qmake.conf /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/linux.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/sanitize.conf \
@@ -411,7 +412,8 @@ Makefile: RadarDisplay.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++/qmake
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
 		RadarDisplay.pro \
 		myRes.qrc
-	$(QMAKE) -o Makefile RadarDisplay.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug
+	@echo "Skipping Makefile regeneration (qmake not available)"
+	@touch Makefile
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf:
 /usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/linux.conf:
@@ -518,7 +520,7 @@ Makefile: RadarDisplay.pro /usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++/qmake
 RadarDisplay.pro:
 myRes.qrc:
 qmake: FORCE
-	@$(QMAKE) -o Makefile RadarDisplay.pro -spec linux-g++ CONFIG+=debug CONFIG+=qml_debug
+	@echo "Skipping qmake (not available)"
 
 qmake_all: FORCE
 
