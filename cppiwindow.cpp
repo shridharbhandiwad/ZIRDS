@@ -34,7 +34,7 @@ CPPIWindow::CPPIWindow(QWidget *parent)
     setMinimumSize(1200, 800);
 
     setupUI();
-    setupZopplerLogo();
+    //setupZopplerLogo();
     applyLightTheme();
     createTrackContextMenu();
 
