@@ -48,9 +48,9 @@ QPushButton* CConfigPanelWidget::createStyledButton(const QString &text, const Q
 
     btn->setStyleSheet(QString(
         "QPushButton {"
-        "   background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 %1, stop:1 %2);"
-        "   color: white;"
-        "   border: none;"
+        "   background-color: #ffffff;"
+        "   color: #000000;"
+        "   border: 2px solid #000000;"
         "   border-radius: 10px;"
         "   padding: 12px 20px;"
         "   font-weight: bold;"
@@ -58,12 +58,12 @@ QPushButton* CConfigPanelWidget::createStyledButton(const QString &text, const Q
         "   text-align: left;"
         "}"
         "QPushButton:hover {"
-        "   background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 %3, stop:1 %1);"
+        "   background-color: #f0f0f0;"
         "}"
         "QPushButton:pressed {"
-        "   background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 %4, stop:1 %2);"
+        "   background-color: #e0e0e0;"
         "}"
-    ).arg(colorHex).arg(color.darker(110).name()).arg(hoverColor).arg(pressColor));
+    ));
 
     return btn;
 }
@@ -74,21 +74,22 @@ QGroupBox* CConfigPanelWidget::createStyledGroup(const QString &title)
     group->setStyleSheet(
         "QGroupBox {"
         "   background-color: #ffffff;"
-        "   border: 2px solid #e2e8f0;"
+        "   border: 2px solid #000000;"
         "   border-radius: 12px;"
         "   margin-top: 16px;"
         "   padding: 16px;"
         "   font-weight: bold;"
-        "   color: #1e293b;"
+        "   color: #000000;"
         "   font-size: 13px;"
         "}"
         "QGroupBox::title {"
         "   subcontrol-origin: margin;"
         "   subcontrol-position: top left;"
         "   padding: 6px 12px;"
-        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #3b82f6, stop:1 #2563eb);"
+        "   background-color: #ffffff;"
+        "   border: 1px solid #000000;"
         "   border-radius: 6px;"
-        "   color: white;"
+        "   color: #000000;"
         "   font-size: 12px;"
         "}"
     );
@@ -126,7 +127,7 @@ void CConfigPanelWidget::createMapTab()
     zoomLayout->setSpacing(10);
 
     QLabel *lblZoom = new QLabel("Zoom Level:");
-    lblZoom->setStyleSheet("color: #334155; font-size: 12px;");
+    lblZoom->setStyleSheet("color: #000000; font-size: 12px;");
     zoomLayout->addWidget(lblZoom, 0, 0);
 
     m_spinZoom = new QDoubleSpinBox();
@@ -136,14 +137,14 @@ void CConfigPanelWidget::createMapTab()
     m_spinZoom->setStyleSheet(
         "QDoubleSpinBox {"
         "   background-color: #ffffff;"
-        "   color: #1e293b;"
-        "   border: 2px solid #e2e8f0;"
+        "   color: #000000;"
+        "   border: 2px solid #000000;"
         "   border-radius: 6px;"
         "   padding: 8px;"
         "   font-size: 12px;"
         "}"
         "QDoubleSpinBox:focus {"
-        "   border: 2px solid #3b82f6;"
+        "   border: 2px solid #000000;"
         "}"
     );
     connect(m_spinZoom, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
@@ -161,7 +162,7 @@ void CConfigPanelWidget::createMapTab()
     m_chkGrid->setChecked(false);
     m_chkGrid->setStyleSheet(
         "QCheckBox {"
-        "   color: #1e293b;"
+        "   color: #000000;"
         "   font-size: 12px;"
         "   spacing: 8px;"
         "}"
@@ -169,16 +170,16 @@ void CConfigPanelWidget::createMapTab()
         "   width: 20px;"
         "   height: 20px;"
         "   border-radius: 4px;"
-        "   border: 2px solid #e2e8f0;"
+        "   border: 2px solid #000000;"
         "   background-color: #ffffff;"
         "}"
         "QCheckBox::indicator:checked {"
-        "   background-color: #3b82f6;"
-        "   border: 2px solid #3b82f6;"
+        "   background-color: #000000;"
+        "   border: 2px solid #000000;"
         "   image: url(:/icons/checkmark.png);"
         "}"
         "QCheckBox::indicator:hover {"
-        "   border: 2px solid #3b82f6;"
+        "   border: 2px solid #000000;"
         "}"
     );
     connect(m_chkGrid, &QCheckBox::toggled, this, &CConfigPanelWidget::gridVisibilityChanged);
@@ -651,39 +652,41 @@ void CConfigPanelWidget::applyRichStyle()
 {
     setStyleSheet(
         "QDockWidget {"
-        "   background-color: #f8fafc;"
-        "   color: #1e293b;"
+        "   background-color: #ffffff;"
+        "   color: #000000;"
         "   font-size: 13px;"
         "   font-weight: bold;"
         "}"
         "QDockWidget::title {"
-        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #3b82f6, stop:1 #2563eb);"
+        "   background-color: #ffffff;"
+        "   border: 2px solid #000000;"
         "   padding: 10px;"
-        "   border-bottom: 2px solid #e2e8f0;"
         "   text-align: center;"
+        "   color: #000000;"
         "}"
         "QDockWidget::close-button, QDockWidget::float-button {"
-        "   background-color: rgba(226, 232, 240, 0.5);"
+        "   background-color: #f0f0f0;"
         "   border-radius: 4px;"
         "   padding: 4px;"
         "}"
         "QDockWidget::close-button:hover, QDockWidget::float-button:hover {"
-        "   background-color: rgba(226, 232, 240, 1.0);"
+        "   background-color: #e0e0e0;"
         "}"
     );
 
     m_tabWidget->setStyleSheet(
         "QTabWidget::pane {"
-        "   background-color: #f8fafc;"
-        "   border: 2px solid #e2e8f0;"
+        "   background-color: #ffffff;"
+        "   border: 2px solid #000000;"
         "   border-radius: 8px;"
         "   top: -2px;"
         "}"
         "QTabBar::tab {"
-        "   background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #f1f5f9, stop:1 #e2e8f0);"
-        "   color: #475569;"
+        "   background-color: #ffffff;"
+        "   color: #000000;"
         "   padding: 15px 10px;"
         "   margin: 2px;"
+        "   border: 2px solid #000000;"
         "   border-top-left-radius: 8px;"
         "   border-bottom-left-radius: 8px;"
         "   font-size: 11px;"
@@ -692,12 +695,12 @@ void CConfigPanelWidget::applyRichStyle()
         "   text-align: center;"
         "}"
         "QTabBar::tab:selected {"
-        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #3b82f6, stop:1 #2563eb);"
-        "   color: white;"
+        "   background-color: #e0e0e0;"
+        "   color: #000000;"
         "}"
         "QTabBar::tab:hover:!selected {"
-        "   background: #e2e8f0;"
-        "   color: #1e293b;"
+        "   background-color: #f0f0f0;"
+        "   color: #000000;"
         "}"
     );
 }
