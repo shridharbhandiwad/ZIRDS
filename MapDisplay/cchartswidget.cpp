@@ -22,6 +22,9 @@ CChartsWidget::CChartsWidget(QWidget *parent)
     m_updateTimer = new QTimer(this);
     connect(m_updateTimer, &QTimer::timeout, this, &CChartsWidget::updateCharts);
     m_updateTimer->start(500); // Update every 500ms
+    
+    // Initialize filter as empty (show all tracks)
+    m_filteredTrackIds.clear();
 }
 
 CChartsWidget::~CChartsWidget()
@@ -43,6 +46,64 @@ void CChartsWidget::setupUI()
     toolbarLayout->addWidget(lblTitle);
 
     toolbarLayout->addStretch();
+    
+    // Grid toggle
+    m_gridCheckbox = new QCheckBox("Grid");
+    m_gridCheckbox->setChecked(true);
+    m_gridCheckbox->setStyleSheet("color: #000000; font-weight: bold;");
+    connect(m_gridCheckbox, &QCheckBox::toggled, this, &CChartsWidget::onGridToggled);
+    toolbarLayout->addWidget(m_gridCheckbox);
+    
+    // Track filter
+    QLabel *lblFilter = new QLabel("Track IDs:");
+    lblFilter->setStyleSheet("color: #000000; font-weight: bold; margin-left: 10px;");
+    toolbarLayout->addWidget(lblFilter);
+    
+    m_trackFilterEdit = new QLineEdit();
+    m_trackFilterEdit->setPlaceholderText("e.g., 1,2,3 (empty = all)");
+    m_trackFilterEdit->setMaximumWidth(150);
+    m_trackFilterEdit->setStyleSheet(
+        "QLineEdit {"
+        "   background-color: #ffffff;"
+        "   color: #000000;"
+        "   border: 2px solid #000000;"
+        "   border-radius: 4px;"
+        "   padding: 4px;"
+        "}"
+    );
+    connect(m_trackFilterEdit, &QLineEdit::textChanged, this, &CChartsWidget::onTrackFilterChanged);
+    toolbarLayout->addWidget(m_trackFilterEdit);
+    
+    // Zoom controls
+    QPushButton *btnZoomIn = new QPushButton("🔍+");
+    btnZoomIn->setToolTip("Zoom In");
+    btnZoomIn->setStyleSheet(
+        "QPushButton {"
+        "   background-color: #ffffff;"
+        "   color: #000000;"
+        "   border: 2px solid #000000;"
+        "   border-radius: 4px;"
+        "   padding: 4px 8px;"
+        "   font-weight: bold;"
+        "}"
+        "QPushButton:hover {"
+        "   background-color: #f0f0f0;"
+        "}"
+    );
+    connect(btnZoomIn, &QPushButton::clicked, this, &CChartsWidget::onZoomIn);
+    toolbarLayout->addWidget(btnZoomIn);
+    
+    QPushButton *btnZoomOut = new QPushButton("🔍-");
+    btnZoomOut->setToolTip("Zoom Out");
+    btnZoomOut->setStyleSheet(btnZoomIn->styleSheet());
+    connect(btnZoomOut, &QPushButton::clicked, this, &CChartsWidget::onZoomOut);
+    toolbarLayout->addWidget(btnZoomOut);
+    
+    QPushButton *btnZoomReset = new QPushButton("⊙");
+    btnZoomReset->setToolTip("Reset Zoom");
+    btnZoomReset->setStyleSheet(btnZoomIn->styleSheet());
+    connect(btnZoomReset, &QPushButton::clicked, this, &CChartsWidget::onZoomReset);
+    toolbarLayout->addWidget(btnZoomReset);
 
     QPushButton *btnExport = new QPushButton("Export");
     btnExport->setStyleSheet(
@@ -53,6 +114,7 @@ void CChartsWidget::setupUI()
         "   border-radius: 6px;"
         "   padding: 6px 12px;"
         "   font-weight: bold;"
+        "   margin-left: 5px;"
         "}"
         "QPushButton:hover {"
         "   background-color: #f0f0f0;"
@@ -66,13 +128,14 @@ void CChartsWidget::setupUI()
     // Tab widget for different chart types
     m_tabWidget = new QTabWidget();
     m_tabWidget->setTabPosition(QTabWidget::North);
+    m_tabWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     createBScopeTab();
     createCScopeTab();
     createRHITab();
     createTimeSeriesTab();
 
-    mainLayout->addWidget(m_tabWidget);
+    mainLayout->addWidget(m_tabWidget, 1); // Stretch factor 1 to expand
 
     setWidget(mainWidget);
 }
@@ -84,7 +147,8 @@ void CChartsWidget::createBScopeTab()
     layout->setContentsMargins(0, 0, 0, 0);
 
     m_bscopeChart = new CCustomChart(CCustomChart::BScope, this);
-    layout->addWidget(m_bscopeChart);
+    m_bscopeChart->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    layout->addWidget(m_bscopeChart, 1); // Stretch factor 1
 
     QLabel *lblInfo = new QLabel("📡 B-Scope: Range vs Azimuth Display");
     lblInfo->setStyleSheet("color: #000000; font-size: 11px; padding: 4px;");
@@ -101,7 +165,8 @@ void CChartsWidget::createCScopeTab()
     layout->setContentsMargins(0, 0, 0, 0);
 
     m_cscopeChart = new CCustomChart(CCustomChart::CScope, this);
-    layout->addWidget(m_cscopeChart);
+    m_cscopeChart->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    layout->addWidget(m_cscopeChart, 1); // Stretch factor 1
 
     QLabel *lblInfo = new QLabel("🎯 C-Scope: Azimuth vs Elevation Display");
     lblInfo->setStyleSheet("color: #64748b; font-size: 11px; padding: 4px;");
@@ -118,7 +183,8 @@ void CChartsWidget::createRHITab()
     layout->setContentsMargins(0, 0, 0, 0);
 
     m_rhiChart = new CCustomChart(CCustomChart::RHI, this);
-    layout->addWidget(m_rhiChart);
+    m_rhiChart->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    layout->addWidget(m_rhiChart, 1); // Stretch factor 1
 
     QLabel *lblInfo = new QLabel("📐 RHI: Range Height Indicator");
     lblInfo->setStyleSheet("color: #64748b; font-size: 11px; padding: 4px;");
@@ -175,7 +241,8 @@ void CChartsWidget::createTimeSeriesTab()
 
     // Create default chart (Range vs Time)
     m_rangeTimeChart = new CCustomChart(CCustomChart::RangeTime, this);
-    layout->addWidget(m_rangeTimeChart);
+    m_rangeTimeChart->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    layout->addWidget(m_rangeTimeChart, 1); // Stretch factor 1
 
     // Store other charts (hidden initially)
     m_azimuthTimeChart = new CCustomChart(CCustomChart::AzimuthTime, this);
@@ -183,15 +250,20 @@ void CChartsWidget::createTimeSeriesTab()
     m_rcsTimeChart = new CCustomChart(CCustomChart::RCSTime, this);
     m_speedTimeChart = new CCustomChart(CCustomChart::SpeedTime, this);
 
+    m_azimuthTimeChart->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_elevationTimeChart->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_rcsTimeChart->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    m_speedTimeChart->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
     m_azimuthTimeChart->hide();
     m_elevationTimeChart->hide();
     m_rcsTimeChart->hide();
     m_speedTimeChart->hide();
 
-    layout->addWidget(m_azimuthTimeChart);
-    layout->addWidget(m_elevationTimeChart);
-    layout->addWidget(m_rcsTimeChart);
-    layout->addWidget(m_speedTimeChart);
+    layout->addWidget(m_azimuthTimeChart, 1);
+    layout->addWidget(m_elevationTimeChart, 1);
+    layout->addWidget(m_rcsTimeChart, 1);
+    layout->addWidget(m_speedTimeChart, 1);
 
     m_tabWidget->addTab(timeTab, "📈 Time Series");
 }
@@ -231,6 +303,100 @@ void CChartsWidget::onChartTypeChanged(int index)
 void CChartsWidget::exportChart()
 {
     QMessageBox::information(this, "Export", "Chart export functionality - Coming soon!");
+}
+
+void CChartsWidget::onGridToggled(bool checked)
+{
+    // Update all charts
+    if (m_bscopeChart) m_bscopeChart->setGridEnabled(checked);
+    if (m_cscopeChart) m_cscopeChart->setGridEnabled(checked);
+    if (m_rhiChart) m_rhiChart->setGridEnabled(checked);
+    if (m_rangeTimeChart) m_rangeTimeChart->setGridEnabled(checked);
+    if (m_azimuthTimeChart) m_azimuthTimeChart->setGridEnabled(checked);
+    if (m_elevationTimeChart) m_elevationTimeChart->setGridEnabled(checked);
+    if (m_rcsTimeChart) m_rcsTimeChart->setGridEnabled(checked);
+    if (m_speedTimeChart) m_speedTimeChart->setGridEnabled(checked);
+}
+
+void CChartsWidget::onTrackFilterChanged(const QString &text)
+{
+    updateTrackFilter();
+}
+
+void CChartsWidget::updateTrackFilter()
+{
+    m_filteredTrackIds.clear();
+    
+    QString text = m_trackFilterEdit->text().trimmed();
+    if (text.isEmpty()) {
+        // Empty filter means show all tracks
+        // Update all charts with empty filter (show all)
+        if (m_bscopeChart) m_bscopeChart->setTrackFilter(m_filteredTrackIds);
+        if (m_cscopeChart) m_cscopeChart->setTrackFilter(m_filteredTrackIds);
+        if (m_rhiChart) m_rhiChart->setTrackFilter(m_filteredTrackIds);
+        if (m_rangeTimeChart) m_rangeTimeChart->setTrackFilter(m_filteredTrackIds);
+        if (m_azimuthTimeChart) m_azimuthTimeChart->setTrackFilter(m_filteredTrackIds);
+        if (m_elevationTimeChart) m_elevationTimeChart->setTrackFilter(m_filteredTrackIds);
+        if (m_rcsTimeChart) m_rcsTimeChart->setTrackFilter(m_filteredTrackIds);
+        if (m_speedTimeChart) m_speedTimeChart->setTrackFilter(m_filteredTrackIds);
+        return;
+    }
+    
+    // Parse comma-separated track IDs
+    QStringList parts = text.split(',', Qt::SkipEmptyParts);
+    for (const QString &part : parts) {
+        bool ok;
+        int trackId = part.trimmed().toInt(&ok);
+        if (ok) {
+            m_filteredTrackIds.insert(trackId);
+        }
+    }
+    
+    // Update all charts
+    if (m_bscopeChart) m_bscopeChart->setTrackFilter(m_filteredTrackIds);
+    if (m_cscopeChart) m_cscopeChart->setTrackFilter(m_filteredTrackIds);
+    if (m_rhiChart) m_rhiChart->setTrackFilter(m_filteredTrackIds);
+    if (m_rangeTimeChart) m_rangeTimeChart->setTrackFilter(m_filteredTrackIds);
+    if (m_azimuthTimeChart) m_azimuthTimeChart->setTrackFilter(m_filteredTrackIds);
+    if (m_elevationTimeChart) m_elevationTimeChart->setTrackFilter(m_filteredTrackIds);
+    if (m_rcsTimeChart) m_rcsTimeChart->setTrackFilter(m_filteredTrackIds);
+    if (m_speedTimeChart) m_speedTimeChart->setTrackFilter(m_filteredTrackIds);
+}
+
+void CChartsWidget::onZoomIn()
+{
+    if (m_bscopeChart) m_bscopeChart->zoomIn();
+    if (m_cscopeChart) m_cscopeChart->zoomIn();
+    if (m_rhiChart) m_rhiChart->zoomIn();
+    if (m_rangeTimeChart && m_rangeTimeChart->isVisible()) m_rangeTimeChart->zoomIn();
+    if (m_azimuthTimeChart && m_azimuthTimeChart->isVisible()) m_azimuthTimeChart->zoomIn();
+    if (m_elevationTimeChart && m_elevationTimeChart->isVisible()) m_elevationTimeChart->zoomIn();
+    if (m_rcsTimeChart && m_rcsTimeChart->isVisible()) m_rcsTimeChart->zoomIn();
+    if (m_speedTimeChart && m_speedTimeChart->isVisible()) m_speedTimeChart->zoomIn();
+}
+
+void CChartsWidget::onZoomOut()
+{
+    if (m_bscopeChart) m_bscopeChart->zoomOut();
+    if (m_cscopeChart) m_cscopeChart->zoomOut();
+    if (m_rhiChart) m_rhiChart->zoomOut();
+    if (m_rangeTimeChart && m_rangeTimeChart->isVisible()) m_rangeTimeChart->zoomOut();
+    if (m_azimuthTimeChart && m_azimuthTimeChart->isVisible()) m_azimuthTimeChart->zoomOut();
+    if (m_elevationTimeChart && m_elevationTimeChart->isVisible()) m_elevationTimeChart->zoomOut();
+    if (m_rcsTimeChart && m_rcsTimeChart->isVisible()) m_rcsTimeChart->zoomOut();
+    if (m_speedTimeChart && m_speedTimeChart->isVisible()) m_speedTimeChart->zoomOut();
+}
+
+void CChartsWidget::onZoomReset()
+{
+    if (m_bscopeChart) m_bscopeChart->resetZoom();
+    if (m_cscopeChart) m_cscopeChart->resetZoom();
+    if (m_rhiChart) m_rhiChart->resetZoom();
+    if (m_rangeTimeChart && m_rangeTimeChart->isVisible()) m_rangeTimeChart->resetZoom();
+    if (m_azimuthTimeChart && m_azimuthTimeChart->isVisible()) m_azimuthTimeChart->resetZoom();
+    if (m_elevationTimeChart && m_elevationTimeChart->isVisible()) m_elevationTimeChart->resetZoom();
+    if (m_rcsTimeChart && m_rcsTimeChart->isVisible()) m_rcsTimeChart->resetZoom();
+    if (m_speedTimeChart && m_speedTimeChart->isVisible()) m_speedTimeChart->resetZoom();
 }
 
 void CChartsWidget::applyRichStyle()
@@ -286,9 +452,11 @@ CCustomChart::CCustomChart(ChartType type, QWidget *parent)
       m_chartType(type),
       m_hoveredIndex(-1),
       m_showTooltip(false),
-      m_zoomLevel(1.0)
+      m_zoomLevel(1.0),
+      m_gridEnabled(true)
 {
-    setMinimumHeight(400);
+    setMinimumHeight(300);
+    setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setMouseTracking(true);
     setCursor(Qt::CrossCursor);
 
@@ -313,6 +481,11 @@ void CCustomChart::updateData()
     qint64 currentTime = QDateTime::currentDateTime().toMSecsSinceEpoch();
 
     for (const stTrackDisplayInfo &track : tracks) {
+        // Apply track filter if set
+        if (!m_filteredTrackIds.isEmpty() && !m_filteredTrackIds.contains(track.nTrkId)) {
+            continue; // Skip this track
+        }
+        
         TrackData data;
         data.trackId = track.nTrkId;
         data.range = track.range;
@@ -366,6 +539,39 @@ void CCustomChart::updateData()
     update();
 }
 
+void CCustomChart::setGridEnabled(bool enabled)
+{
+    m_gridEnabled = enabled;
+    update();
+}
+
+void CCustomChart::setTrackFilter(const QSet<int> &trackIds)
+{
+    m_filteredTrackIds = trackIds;
+    update();
+}
+
+void CCustomChart::zoomIn()
+{
+    m_zoomLevel += 0.2;
+    m_zoomLevel = qMin(m_zoomLevel, 5.0);
+    update();
+}
+
+void CCustomChart::zoomOut()
+{
+    m_zoomLevel -= 0.2;
+    m_zoomLevel = qMax(m_zoomLevel, 0.5);
+    update();
+}
+
+void CCustomChart::resetZoom()
+{
+    m_zoomLevel = 1.0;
+    m_panOffset = QPointF(0, 0);
+    update();
+}
+
 void CCustomChart::paintEvent(QPaintEvent *event)
 {
     Q_UNUSED(event);
@@ -404,8 +610,17 @@ void CCustomChart::drawBScope(QPainter *painter)
     QRectF chartRect = rect().adjusted(60, 40, -40, -60);
 
     // Draw grid and axes
-    drawGrid(painter, chartRect);
+    if (m_gridEnabled) {
+        drawGrid(painter, chartRect);
+    }
     drawAxes(painter, chartRect, "Azimuth (°)", "Range (km)");
+
+    // Apply zoom transformation
+    painter->save();
+    QPointF center = chartRect.center();
+    painter->translate(center);
+    painter->scale(m_zoomLevel, m_zoomLevel);
+    painter->translate(-center + m_panOffset);
 
     // Draw tracks
     for (int i = 0; i < m_currentData.size(); ++i) {
@@ -435,7 +650,9 @@ void CCustomChart::drawBScope(QPainter *painter)
         painter->drawText(QPointF(x + 10, y - 5), QString::number(data.trackId));
     }
 
-    // Draw legend
+    painter->restore();
+
+    // Draw legend (not affected by zoom)
     painter->setPen(QColor(30, 41, 59));
     painter->setFont(QFont("Arial", 10, QFont::Bold));
     painter->drawText(rect().adjusted(10, 10, 0, 0), "B-Scope Display");
@@ -445,8 +662,17 @@ void CCustomChart::drawCScope(QPainter *painter)
 {
     QRectF chartRect = rect().adjusted(60, 40, -40, -60);
 
-    drawGrid(painter, chartRect);
+    if (m_gridEnabled) {
+        drawGrid(painter, chartRect);
+    }
     drawAxes(painter, chartRect, "Azimuth (°)", "Elevation (°)");
+
+    // Apply zoom transformation
+    painter->save();
+    QPointF center = chartRect.center();
+    painter->translate(center);
+    painter->scale(m_zoomLevel, m_zoomLevel);
+    painter->translate(-center + m_panOffset);
 
     for (int i = 0; i < m_currentData.size(); ++i) {
         const auto &data = m_currentData[i];
@@ -471,6 +697,8 @@ void CCustomChart::drawCScope(QPainter *painter)
         painter->drawText(QPointF(x + 10, y - 5), QString::number(data.trackId));
     }
 
+    painter->restore();
+
     painter->setPen(QColor(30, 41, 59));
     painter->setFont(QFont("Arial", 10, QFont::Bold));
     painter->drawText(rect().adjusted(10, 10, 0, 0), "C-Scope Display");
@@ -480,8 +708,17 @@ void CCustomChart::drawRHI(QPainter *painter)
 {
     QRectF chartRect = rect().adjusted(60, 40, -40, -60);
 
-    drawGrid(painter, chartRect);
+    if (m_gridEnabled) {
+        drawGrid(painter, chartRect);
+    }
     drawAxes(painter, chartRect, "Range (km)", "Height (km)");
+
+    // Apply zoom transformation
+    painter->save();
+    QPointF center = chartRect.center();
+    painter->translate(center);
+    painter->scale(m_zoomLevel, m_zoomLevel);
+    painter->translate(-center + m_panOffset);
 
     for (int i = 0; i < m_currentData.size(); ++i) {
         const auto &data = m_currentData[i];
@@ -507,6 +744,8 @@ void CCustomChart::drawRHI(QPainter *painter)
         painter->drawText(QPointF(x + 10, y - 5), QString::number(data.trackId));
     }
 
+    painter->restore();
+
     painter->setPen(QColor(30, 41, 59));
     painter->setFont(QFont("Arial", 10, QFont::Bold));
     painter->drawText(rect().adjusted(10, 10, 0, 0), "RHI Display");
@@ -526,13 +765,27 @@ void CCustomChart::drawTimeSeries(QPainter *painter)
         default: yLabel = "Value"; break;
     }
 
-    drawGrid(painter, chartRect);
+    if (m_gridEnabled) {
+        drawGrid(painter, chartRect);
+    }
     drawAxes(painter, chartRect, "Time (s)", yLabel);
+
+    // Apply zoom transformation
+    painter->save();
+    QPointF center = chartRect.center();
+    painter->translate(center);
+    painter->scale(m_zoomLevel, m_zoomLevel);
+    painter->translate(-center + m_panOffset);
 
     // Draw time series for each track
     for (auto it = m_historicalData.begin(); it != m_historicalData.end(); ++it) {
         int trackId = it.key();
         const auto &history = it.value();
+
+        // Apply track filter if set
+        if (!m_filteredTrackIds.isEmpty() && !m_filteredTrackIds.contains(trackId)) {
+            continue; // Skip this track
+        }
 
         if (history.size() < 2) continue;
 
@@ -613,7 +866,9 @@ void CCustomChart::drawTimeSeries(QPainter *painter)
         }
     }
 
-    // Draw title
+    painter->restore();
+
+    // Draw title (not affected by zoom)
     painter->setPen(QColor(30, 41, 59));
     painter->setFont(QFont("Arial", 10, QFont::Bold));
     QString title;
