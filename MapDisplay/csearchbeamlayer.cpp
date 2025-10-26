@@ -11,7 +11,7 @@ CSearchBeamLayer::CSearchBeamLayer(QgsMapCanvas *canvas)
     setZValue(102);
 
     connect(&_animationTimer, &QTimer::timeout, this, [this]() {
-           _sweepAngle += 3.0;
+           _sweepAngle += 18.0;  // 60 RPM: 360 degrees/sec at 20 FPS = 18 degrees/update
            if (_sweepAngle >= 360.0) _sweepAngle = 0.0;
            update();  // Trigger repaint
        });
