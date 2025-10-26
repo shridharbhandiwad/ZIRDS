@@ -7,7 +7,6 @@
 #include <QPoint>
 #include "cppilayer.h"
 #include "ctracklayer.h"
-#include "chomepositionhighlightlayer.h"
 #include "qgsrasterlayer.h"
 #include <QProcess>
 #include <QProgressDialog>
@@ -55,7 +54,6 @@ private:
 
     CPPILayer *_m_ppiLayer;
     CTrackLayer *_m_trackLayer;
-    CHomePositionHighlightLayer *_m_homeHighlightLayer;
     bool m_mapLayersVisible;
     QList<QgsMapLayer*> m_mapLayers; // Store map layers separately from PPI/track layers
     void _loadLayers();
