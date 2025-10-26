@@ -22,6 +22,7 @@ public:
     void Initialize();
 
     void mapHome();
+    void zoomToTracksAndHome();
 
     void wheelEvent(QWheelEvent *event) override;
     void mousePressEvent(QMouseEvent *event) override;
