@@ -682,7 +682,7 @@ void CCustomChart::drawBScope(QPainter *painter)
         const auto &data = m_currentData[i];
 
         // Convert azimuth and range to chart coordinates
-        double azimuthNorm = (data.azimuth + 180.0) / 360.0; // Normalize to 0-1
+        double azimuthNorm = data.azimuth / 360.0; // Normalize to 0-1 (0-360 range)
         double rangeNorm = data.range / 50000.0; // Max range 50km
 
         double x = chartRect.left() + chartRect.width() * azimuthNorm;
@@ -732,7 +732,7 @@ void CCustomChart::drawCScope(QPainter *painter)
     for (int i = 0; i < m_currentData.size(); ++i) {
         const auto &data = m_currentData[i];
 
-        double azimuthNorm = (data.azimuth + 180.0) / 360.0;
+        double azimuthNorm = data.azimuth / 360.0; // Normalize to 0-1 (0-360 range)
         double elevationNorm = (data.elevation + 90.0) / 180.0;
 
         double x = chartRect.left() + chartRect.width() * azimuthNorm;
@@ -862,7 +862,7 @@ void CCustomChart::drawTimeSeries(QPainter *painter)
                     valueNorm = data.range / 50000.0;
                     break;
                 case AzimuthTime:
-                    valueNorm = (data.azimuth + 180.0) / 360.0;
+                    valueNorm = data.azimuth / 360.0; // Normalize to 0-1 (0-360 range)
                     break;
                 case ElevationTime:
                     valueNorm = (data.elevation + 90.0) / 180.0;
@@ -899,7 +899,7 @@ void CCustomChart::drawTimeSeries(QPainter *painter)
                 double valueNorm = 0.0;
                 switch (m_chartType) {
                     case RangeTime: valueNorm = lastData.range / 50000.0; break;
-                    case AzimuthTime: valueNorm = (lastData.azimuth + 180.0) / 360.0; break;
+                    case AzimuthTime: valueNorm = lastData.azimuth / 360.0; break; // Normalize to 0-1 (0-360 range)
                     case ElevationTime: valueNorm = (lastData.elevation + 90.0) / 180.0; break;
                     case RCSTime: valueNorm = (lastData.rcs + 20.0) / 80.0; break;
                     case SpeedTime: valueNorm = qAbs(lastData.speed) / 100.0; break;
@@ -995,11 +995,11 @@ void CCustomChart::drawAxisValues(QPainter *painter, const QRectF &rect)
     
     switch (m_chartType) {
         case BScope:
-            xMin = -180.0; xMax = 180.0;  // Azimuth
+            xMin = 0.0; xMax = 360.0;     // Azimuth
             yMin = 0.0; yMax = 50.0;      // Range in km
             break;
         case CScope:
-            xMin = -180.0; xMax = 180.0;  // Azimuth
+            xMin = 0.0; xMax = 360.0;     // Azimuth
             yMin = -90.0; yMax = 90.0;    // Elevation
             break;
         case RHI:
@@ -1012,7 +1012,7 @@ void CCustomChart::drawAxisValues(QPainter *painter, const QRectF &rect)
             break;
         case AzimuthTime:
             xMin = -60.0; xMax = 0.0;     // Time in seconds
-            yMin = -180.0; yMax = 180.0;  // Azimuth
+            yMin = 0.0; yMax = 360.0;     // Azimuth
             break;
         case ElevationTime:
             xMin = -60.0; xMax = 0.0;     // Time in seconds
@@ -1301,14 +1301,14 @@ QPointF CCustomChart::getDataPointPosition(int index, const QRectF &rect)
 
     switch (m_chartType) {
         case BScope: {
-            double azimuthNorm = (data.azimuth + 180.0) / 360.0;
+            double azimuthNorm = data.azimuth / 360.0; // Normalize to 0-1 (0-360 range)
             double rangeNorm = data.range / 50000.0;
             x = rect.left() + rect.width() * azimuthNorm;
             y = rect.bottom() - rect.height() * rangeNorm;
             break;
         }
         case CScope: {
-            double azimuthNorm = (data.azimuth + 180.0) / 360.0;
+            double azimuthNorm = data.azimuth / 360.0; // Normalize to 0-1 (0-360 range)
             double elevationNorm = (data.elevation + 90.0) / 180.0;
             x = rect.left() + rect.width() * azimuthNorm;
             y = rect.bottom() - rect.height() * elevationNorm;
