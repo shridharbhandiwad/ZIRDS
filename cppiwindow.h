@@ -56,6 +56,7 @@ public:
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     void contextMenuEvent(QContextMenuEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
 
 private slots:
     // Settings toolbar actions
@@ -82,6 +83,9 @@ private slots:
 
     // Status updates
     void updateStatusBar();
+    
+    // Logo setup
+    void setupZopplerLogo();
 
 signals:
     void trackSelected(int trackId);
@@ -114,6 +118,9 @@ private:
     QPushButton *m_toggleTableBtn;
     QPushButton *m_settingsBtn;
     QLabel *m_statusLabel;
+    
+    // Zoppler logo
+    QLabel *m_logoLabel;
 
     // Main components
     QSplitter *m_splitter;

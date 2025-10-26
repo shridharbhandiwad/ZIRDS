@@ -133,11 +133,11 @@ int main(int argc, char *argv[])
     });
     
     // Close splash and show main system
-    QTimer::singleShot(3000, [&]() {
+    QTimer::singleShot(5000, [&]() {
         splash.close();
         
-        // Show small control window for window management
-        mainWindow.show();
+        // Keep window manager minimized, don't show at startup
+        mainWindow.showMinimized();
         mainWindow.resize(400, 200);
         mainWindow.move(100, 100);
         

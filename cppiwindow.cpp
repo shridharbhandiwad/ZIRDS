@@ -5,6 +5,7 @@
 #include <QApplication>
 #include <QKeyEvent>
 #include <QContextMenuEvent>
+#include <QResizeEvent>
 #include <QSplitter>
 #include <QStatusBar>
 #include <QToolBar>
@@ -26,12 +27,14 @@ CPPIWindow::CPPIWindow(QWidget *parent)
     , m_maxHistoryPoints(50)
     , m_statusTimer(new QTimer(this))
     , m_settings(new QSettings("RadarDisplay", "PPIWindow", this))
+    , m_logoLabel(nullptr)
 {
     setWindowTitle("🎯 ZIRDS - PPI Display | © Zoppler Systems");
     setWindowIcon(QIcon(":/images/resources/zoppler_logo.png"));
     setMinimumSize(1200, 800);
 
     setupUI();
+    setupZopplerLogo();
     applyLightTheme();
     createTrackContextMenu();
 
@@ -558,4 +561,66 @@ void CPPIWindow::loadSettings()
     m_compassBtn->setChecked(m_compassVisible);
     m_disableMapBtn->setChecked(!m_mapEnabled);
     m_disableMapBtn->setText(m_mapEnabled ? "🚫 Disable Map" : "✅ Enable Map");
+}
+
+void CPPIWindow::setupZopplerLogo()
+{
+    // Create logo label
+    m_logoLabel = new QLabel(this);
+    
+    // Load and set logo
+    QPixmap logo(":/images/resources/zoppler_logo.png");
+    if (!logo.isNull()) {
+        // Scale logo to reasonable size (100x100 pixels)
+        QPixmap scaledLogo = logo.scaled(100, 100, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        m_logoLabel->setPixmap(scaledLogo);
+    } else {
+        // Fallback text if logo not found
+        m_logoLabel->setText("ZOPPLER");
+        m_logoLabel->setStyleSheet(
+            "QLabel {"
+            "   color: #000000;"
+            "   font-size: 16px;"
+            "   font-weight: bold;"
+            "   background-color: rgba(255, 255, 255, 200);"
+            "   padding: 8px;"
+            "   border-radius: 4px;"
+            "}"
+        );
+    }
+    
+    // Set logo properties
+    m_logoLabel->setScaledContents(false);
+    m_logoLabel->setAlignment(Qt::AlignCenter);
+    m_logoLabel->setFixedSize(110, 110);
+    
+    // Style the logo label with semi-transparent background
+    m_logoLabel->setStyleSheet(
+        "QLabel {"
+        "   background-color: rgba(255, 255, 255, 230);"
+        "   border: 2px solid #000000;"
+        "   border-radius: 8px;"
+        "   padding: 5px;"
+        "}"
+    );
+    
+    // Position in top-right corner (will be updated on resize)
+    m_logoLabel->move(this->width() - 130, 20);
+    
+    // Ensure logo stays on top
+    m_logoLabel->raise();
+    m_logoLabel->show();
+    
+    qDebug() << "Zoppler logo added to PPI window";
+}
+
+void CPPIWindow::resizeEvent(QResizeEvent *event)
+{
+    QMainWindow::resizeEvent(event);
+    
+    // Update logo position to keep it in top-right corner
+    if (m_logoLabel) {
+        m_logoLabel->move(this->width() - 130, 20);
+        m_logoLabel->raise();
+    }
 }
