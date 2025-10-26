@@ -34,6 +34,7 @@ private slots:
     void onZoomIn();
     void onZoomOut();
     void onZoomReset();
+    void onPanModeToggled(bool checked);
 
 private:
     void setupUI();
@@ -60,6 +61,7 @@ private:
     
     // Control widgets
     QCheckBox *m_gridCheckbox;
+    QPushButton *m_panModeButton;
     QLineEdit *m_trackFilterEdit;
     QSet<int> m_filteredTrackIds;
     
@@ -96,6 +98,7 @@ public:
     void zoomIn();
     void zoomOut();
     void resetZoom();
+    void setPanMode(bool enabled);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -112,6 +115,7 @@ private:
     void drawTimeSeries(QPainter *painter);
     void drawGrid(QPainter *painter, const QRectF &rect);
     void drawAxes(QPainter *painter, const QRectF &rect, const QString &xLabel, const QString &yLabel);
+    void drawAxisValues(QPainter *painter, const QRectF &rect);
     void drawTooltip(QPainter *painter);
     void drawSelectionRect(QPainter *painter);
 
@@ -130,6 +134,7 @@ private:
     // Pan and zoom interaction state
     bool m_isPanning;
     bool m_isSelecting;
+    bool m_panModeEnabled;
     QPointF m_lastMousePos;
     QPointF m_selectionStart;
     QPointF m_selectionEnd;
