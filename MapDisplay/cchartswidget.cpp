@@ -39,7 +39,7 @@ void CChartsWidget::setupUI()
     QHBoxLayout *toolbarLayout = new QHBoxLayout();
 
     QLabel *lblTitle = new QLabel("📊 Radar Display Charts");
-    lblTitle->setStyleSheet("color: #ffffff; font-size: 14px; font-weight: bold;");
+    lblTitle->setStyleSheet("color: #1e293b; font-size: 14px; font-weight: bold;");
     toolbarLayout->addWidget(lblTitle);
 
     toolbarLayout->addStretch();
@@ -47,7 +47,7 @@ void CChartsWidget::setupUI()
     QPushButton *btnExport = new QPushButton("Export");
     btnExport->setStyleSheet(
         "QPushButton {"
-        "   background-color: #667eea;"
+        "   background-color: #3b82f6;"
         "   color: white;"
         "   border: none;"
         "   border-radius: 6px;"
@@ -55,7 +55,7 @@ void CChartsWidget::setupUI()
         "   font-weight: bold;"
         "}"
         "QPushButton:hover {"
-        "   background-color: #5568d3;"
+        "   background-color: #2563eb;"
         "}"
     );
     connect(btnExport, &QPushButton::clicked, this, &CChartsWidget::exportChart);
@@ -87,7 +87,7 @@ void CChartsWidget::createBScopeTab()
     layout->addWidget(m_bscopeChart);
 
     QLabel *lblInfo = new QLabel("📡 B-Scope: Range vs Azimuth Display");
-    lblInfo->setStyleSheet("color: #a0aec0; font-size: 11px; padding: 4px;");
+    lblInfo->setStyleSheet("color: #64748b; font-size: 11px; padding: 4px;");
     lblInfo->setAlignment(Qt::AlignCenter);
     layout->addWidget(lblInfo);
 
@@ -104,7 +104,7 @@ void CChartsWidget::createCScopeTab()
     layout->addWidget(m_cscopeChart);
 
     QLabel *lblInfo = new QLabel("🎯 C-Scope: Azimuth vs Elevation Display");
-    lblInfo->setStyleSheet("color: #a0aec0; font-size: 11px; padding: 4px;");
+    lblInfo->setStyleSheet("color: #64748b; font-size: 11px; padding: 4px;");
     lblInfo->setAlignment(Qt::AlignCenter);
     layout->addWidget(lblInfo);
 
@@ -121,7 +121,7 @@ void CChartsWidget::createRHITab()
     layout->addWidget(m_rhiChart);
 
     QLabel *lblInfo = new QLabel("📐 RHI: Range Height Indicator");
-    lblInfo->setStyleSheet("color: #a0aec0; font-size: 11px; padding: 4px;");
+    lblInfo->setStyleSheet("color: #64748b; font-size: 11px; padding: 4px;");
     lblInfo->setAlignment(Qt::AlignCenter);
     layout->addWidget(lblInfo);
 
@@ -138,7 +138,7 @@ void CChartsWidget::createTimeSeriesTab()
     // Selector for time series type
     QHBoxLayout *selectorLayout = new QHBoxLayout();
     QLabel *lblSelect = new QLabel("Chart Type:");
-    lblSelect->setStyleSheet("color: #ffffff; font-weight: bold;");
+    lblSelect->setStyleSheet("color: #1e293b; font-weight: bold;");
     selectorLayout->addWidget(lblSelect);
 
     m_comboTimeSeriesType = new QComboBox();
@@ -151,19 +151,19 @@ void CChartsWidget::createTimeSeriesTab()
     });
     m_comboTimeSeriesType->setStyleSheet(
         "QComboBox {"
-        "   background-color: #2d3748;"
-        "   color: #ffffff;"
-        "   border: 2px solid #4a5568;"
+        "   background-color: #ffffff;"
+        "   color: #1e293b;"
+        "   border: 2px solid #e2e8f0;"
         "   border-radius: 6px;"
         "   padding: 6px;"
         "}"
         "QComboBox:hover {"
-        "   border: 2px solid #667eea;"
+        "   border: 2px solid #3b82f6;"
         "}"
         "QComboBox QAbstractItemView {"
-        "   background-color: #2d3748;"
-        "   color: #ffffff;"
-        "   selection-background-color: #667eea;"
+        "   background-color: #ffffff;"
+        "   color: #1e293b;"
+        "   selection-background-color: #3b82f6;"
         "}"
     );
     connect(m_comboTimeSeriesType, QOverload<int>::of(&QComboBox::currentIndexChanged),
@@ -237,11 +237,11 @@ void CChartsWidget::applyRichStyle()
 {
     setStyleSheet(
         "QDockWidget {"
-        "   background-color: #1a202c;"
-        "   color: #ffffff;"
+        "   background-color: #f8fafc;"
+        "   color: #1e293b;"
         "}"
         "QDockWidget::title {"
-        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #667eea, stop:1 #764ba2);"
+        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #3b82f6, stop:1 #2563eb);"
         "   padding: 10px;"
         "   text-align: center;"
         "}"
@@ -249,13 +249,13 @@ void CChartsWidget::applyRichStyle()
 
     m_tabWidget->setStyleSheet(
         "QTabWidget::pane {"
-        "   background-color: #1a202c;"
-        "   border: 2px solid #4a5568;"
+        "   background-color: #f8fafc;"
+        "   border: 2px solid #e2e8f0;"
         "   border-radius: 8px;"
         "}"
         "QTabBar::tab {"
-        "   background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #2d3748, stop:1 #1a202c);"
-        "   color: #a0aec0;"
+        "   background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #f1f5f9, stop:1 #e2e8f0);"
+        "   color: #475569;"
         "   padding: 12px 20px;"
         "   margin: 2px;"
         "   border-top-left-radius: 8px;"
@@ -264,12 +264,12 @@ void CChartsWidget::applyRichStyle()
         "   font-weight: bold;"
         "}"
         "QTabBar::tab:selected {"
-        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #667eea, stop:1 #764ba2);"
+        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #3b82f6, stop:1 #2563eb);"
         "   color: white;"
         "}"
         "QTabBar::tab:hover:!selected {"
-        "   background: #2d3748;"
-        "   color: #ffffff;"
+        "   background: #e2e8f0;"
+        "   color: #1e293b;"
         "}"
     );
 }
@@ -289,7 +289,7 @@ CCustomChart::CCustomChart(ChartType type, QWidget *parent)
     setMouseTracking(true);
     setCursor(Qt::CrossCursor);
 
-    setStyleSheet("background-color: #0f172a; border-radius: 8px;");
+    setStyleSheet("background-color: #ffffff; border-radius: 8px;");
 }
 
 CCustomChart::~CCustomChart()
@@ -427,13 +427,13 @@ void CCustomChart::drawBScope(QPainter *painter)
         painter->drawEllipse(QPointF(x, y), 6, 6);
 
         // Draw track ID
-        painter->setPen(Qt::white);
+        painter->setPen(QColor(30, 41, 59));
         painter->setFont(QFont("Arial", 9, QFont::Bold));
         painter->drawText(QPointF(x + 10, y - 5), QString::number(data.trackId));
     }
 
     // Draw legend
-    painter->setPen(Qt::white);
+    painter->setPen(QColor(30, 41, 59));
     painter->setFont(QFont("Arial", 10, QFont::Bold));
     painter->drawText(rect().adjusted(10, 10, 0, 0), "B-Scope Display");
 }
@@ -463,12 +463,12 @@ void CCustomChart::drawCScope(QPainter *painter)
         painter->setBrush(data.color);
         painter->drawEllipse(QPointF(x, y), 6, 6);
 
-        painter->setPen(Qt::white);
+        painter->setPen(QColor(30, 41, 59));
         painter->setFont(QFont("Arial", 9, QFont::Bold));
         painter->drawText(QPointF(x + 10, y - 5), QString::number(data.trackId));
     }
 
-    painter->setPen(Qt::white);
+    painter->setPen(QColor(30, 41, 59));
     painter->setFont(QFont("Arial", 10, QFont::Bold));
     painter->drawText(rect().adjusted(10, 10, 0, 0), "C-Scope Display");
 }
@@ -499,12 +499,12 @@ void CCustomChart::drawRHI(QPainter *painter)
         painter->setBrush(data.color);
         painter->drawEllipse(QPointF(x, y), 6, 6);
 
-        painter->setPen(Qt::white);
+        painter->setPen(QColor(30, 41, 59));
         painter->setFont(QFont("Arial", 9, QFont::Bold));
         painter->drawText(QPointF(x + 10, y - 5), QString::number(data.trackId));
     }
 
-    painter->setPen(Qt::white);
+    painter->setPen(QColor(30, 41, 59));
     painter->setFont(QFont("Arial", 10, QFont::Bold));
     painter->drawText(rect().adjusted(10, 10, 0, 0), "RHI Display");
 }
@@ -603,7 +603,7 @@ void CCustomChart::drawTimeSeries(QPainter *painter)
                 painter->drawEllipse(QPointF(x, y), 5, 5);
 
                 // Draw track ID
-                painter->setPen(Qt::white);
+                painter->setPen(QColor(30, 41, 59));
                 painter->setFont(QFont("Arial", 9, QFont::Bold));
                 painter->drawText(QPointF(x + 8, y - 3), QString::number(trackId));
             }
@@ -611,7 +611,7 @@ void CCustomChart::drawTimeSeries(QPainter *painter)
     }
 
     // Draw title
-    painter->setPen(Qt::white);
+    painter->setPen(QColor(30, 41, 59));
     painter->setFont(QFont("Arial", 10, QFont::Bold));
     QString title;
     switch (m_chartType) {
@@ -627,7 +627,7 @@ void CCustomChart::drawTimeSeries(QPainter *painter)
 
 void CCustomChart::drawGrid(QPainter *painter, const QRectF &rect)
 {
-    painter->setPen(QPen(QColor(74, 85, 104, 100), 1));
+    painter->setPen(QPen(QColor(226, 232, 240, 200), 1));
 
     // Vertical grid lines
     for (int i = 0; i <= 10; ++i) {
@@ -644,7 +644,7 @@ void CCustomChart::drawGrid(QPainter *painter, const QRectF &rect)
 
 void CCustomChart::drawAxes(QPainter *painter, const QRectF &rect, const QString &xLabel, const QString &yLabel)
 {
-    painter->setPen(QPen(QColor(160, 174, 192), 2));
+    painter->setPen(QPen(QColor(71, 85, 105), 2));
 
     // X axis
     painter->drawLine(rect.bottomLeft(), rect.bottomRight());
@@ -653,7 +653,7 @@ void CCustomChart::drawAxes(QPainter *painter, const QRectF &rect, const QString
     painter->drawLine(rect.bottomLeft(), rect.topLeft());
 
     // Labels
-    painter->setPen(QColor(226, 232, 240));
+    painter->setPen(QColor(30, 41, 59));
     painter->setFont(QFont("Arial", 10, QFont::Bold));
 
     // X label

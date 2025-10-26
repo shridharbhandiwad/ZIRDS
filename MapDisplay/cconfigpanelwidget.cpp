@@ -73,20 +73,20 @@ QGroupBox* CConfigPanelWidget::createStyledGroup(const QString &title)
     QGroupBox *group = new QGroupBox(title);
     group->setStyleSheet(
         "QGroupBox {"
-        "   background-color: #2d3748;"
-        "   border: 2px solid #4a5568;"
+        "   background-color: #ffffff;"
+        "   border: 2px solid #e2e8f0;"
         "   border-radius: 12px;"
         "   margin-top: 16px;"
         "   padding: 16px;"
         "   font-weight: bold;"
-        "   color: #ffffff;"
+        "   color: #1e293b;"
         "   font-size: 13px;"
         "}"
         "QGroupBox::title {"
         "   subcontrol-origin: margin;"
         "   subcontrol-position: top left;"
         "   padding: 6px 12px;"
-        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #667eea, stop:1 #764ba2);"
+        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #3b82f6, stop:1 #2563eb);"
         "   border-radius: 6px;"
         "   color: white;"
         "   font-size: 12px;"
@@ -126,7 +126,7 @@ void CConfigPanelWidget::createMapTab()
     zoomLayout->setSpacing(10);
 
     QLabel *lblZoom = new QLabel("Zoom Level:");
-    lblZoom->setStyleSheet("color: #e2e8f0; font-size: 12px;");
+    lblZoom->setStyleSheet("color: #334155; font-size: 12px;");
     zoomLayout->addWidget(lblZoom, 0, 0);
 
     m_spinZoom = new QDoubleSpinBox();
@@ -135,15 +135,15 @@ void CConfigPanelWidget::createMapTab()
     m_spinZoom->setSingleStep(0.1);
     m_spinZoom->setStyleSheet(
         "QDoubleSpinBox {"
-        "   background-color: #1a202c;"
-        "   color: #ffffff;"
-        "   border: 2px solid #4a5568;"
+        "   background-color: #ffffff;"
+        "   color: #1e293b;"
+        "   border: 2px solid #e2e8f0;"
         "   border-radius: 6px;"
         "   padding: 8px;"
         "   font-size: 12px;"
         "}"
         "QDoubleSpinBox:focus {"
-        "   border: 2px solid #667eea;"
+        "   border: 2px solid #3b82f6;"
         "}"
     );
     connect(m_spinZoom, QOverload<double>::of(&QDoubleSpinBox::valueChanged),
@@ -161,7 +161,7 @@ void CConfigPanelWidget::createMapTab()
     m_chkGrid->setChecked(false);
     m_chkGrid->setStyleSheet(
         "QCheckBox {"
-        "   color: #ffffff;"
+        "   color: #1e293b;"
         "   font-size: 12px;"
         "   spacing: 8px;"
         "}"
@@ -169,16 +169,16 @@ void CConfigPanelWidget::createMapTab()
         "   width: 20px;"
         "   height: 20px;"
         "   border-radius: 4px;"
-        "   border: 2px solid #4a5568;"
-        "   background-color: #1a202c;"
+        "   border: 2px solid #e2e8f0;"
+        "   background-color: #ffffff;"
         "}"
         "QCheckBox::indicator:checked {"
-        "   background-color: #667eea;"
-        "   border: 2px solid #667eea;"
+        "   background-color: #3b82f6;"
+        "   border: 2px solid #3b82f6;"
         "   image: url(:/icons/checkmark.png);"
         "}"
         "QCheckBox::indicator:hover {"
-        "   border: 2px solid #667eea;"
+        "   border: 2px solid #3b82f6;"
         "}"
     );
     connect(m_chkGrid, &QCheckBox::toggled, this, &CConfigPanelWidget::gridVisibilityChanged);
@@ -210,7 +210,7 @@ void CConfigPanelWidget::createTrackTab()
 
     QString checkboxStyle =
         "QCheckBox {"
-        "   color: #ffffff;"
+        "   color: #1e293b;"
         "   font-size: 12px;"
         "   font-weight: bold;"
         "   spacing: 8px;"
@@ -219,8 +219,8 @@ void CConfigPanelWidget::createTrackTab()
         "   width: 20px;"
         "   height: 20px;"
         "   border-radius: 4px;"
-        "   border: 2px solid #4a5568;"
-        "   background-color: #1a202c;"
+        "   border: 2px solid #e2e8f0;"
+        "   background-color: #ffffff;"
         "}"
         "QCheckBox::indicator:checked {"
         "   background-color: %1;"
@@ -263,7 +263,7 @@ void CConfigPanelWidget::createTrackTab()
     displayLayout->setSpacing(10);
 
     QLabel *lblSize = new QLabel("Track Size:");
-    lblSize->setStyleSheet("color: #e2e8f0; font-size: 12px;");
+    lblSize->setStyleSheet("color: #334155; font-size: 12px;");
     displayLayout->addWidget(lblSize, 0, 0);
 
     m_sliderTrackSize = new QSlider(Qt::Horizontal);
@@ -271,19 +271,19 @@ void CConfigPanelWidget::createTrackTab()
     m_sliderTrackSize->setValue(4);
     m_sliderTrackSize->setStyleSheet(
         "QSlider::groove:horizontal {"
-        "   background: #1a202c;"
+        "   background: #e2e8f0;"
         "   height: 8px;"
         "   border-radius: 4px;"
         "}"
         "QSlider::handle:horizontal {"
-        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #667eea, stop:1 #764ba2);"
+        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #3b82f6, stop:1 #2563eb);"
         "   width: 18px;"
         "   height: 18px;"
         "   margin: -5px 0;"
         "   border-radius: 9px;"
         "}"
         "QSlider::sub-page:horizontal {"
-        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #667eea, stop:1 #764ba2);"
+        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #3b82f6, stop:1 #2563eb);"
         "   border-radius: 4px;"
         "}"
     );
@@ -295,9 +295,9 @@ void CConfigPanelWidget::createTrackTab()
     m_spinTrackSize->setMaximumWidth(60);
     m_spinTrackSize->setStyleSheet(
         "QSpinBox {"
-        "   background-color: #1a202c;"
-        "   color: #ffffff;"
-        "   border: 2px solid #4a5568;"
+        "   background-color: #ffffff;"
+        "   color: #1e293b;"
+        "   border: 2px solid #e2e8f0;"
         "   border-radius: 6px;"
         "   padding: 4px;"
         "}"
@@ -316,7 +316,7 @@ void CConfigPanelWidget::createTrackTab()
     animLayout->setSpacing(10);
 
     QLabel *lblSpeed = new QLabel("Speed:");
-    lblSpeed->setStyleSheet("color: #e2e8f0; font-size: 12px;");
+    lblSpeed->setStyleSheet("color: #334155; font-size: 12px;");
     animLayout->addWidget(lblSpeed, 0, 0);
 
     m_sliderAnimSpeed = new QSlider(Qt::Horizontal);
@@ -345,7 +345,7 @@ void CConfigPanelWidget::createTrackTab()
     historyLayout->setSpacing(10);
 
     QLabel *lblHistoryLimit = new QLabel("Max History Points:");
-    lblHistoryLimit->setStyleSheet("color: #e2e8f0; font-size: 12px;");
+    lblHistoryLimit->setStyleSheet("color: #334155; font-size: 12px;");
     historyLayout->addWidget(lblHistoryLimit, 0, 0);
 
     m_sliderHistoryLimit = new QSlider(Qt::Horizontal);
@@ -368,7 +368,7 @@ void CConfigPanelWidget::createTrackTab()
     connect(m_sliderHistoryLimit, &QSlider::valueChanged, this, &CConfigPanelWidget::historyLimitChanged);
 
     QLabel *lblHistoryDesc = new QLabel("📍 Right-click a track to toggle history trail");
-    lblHistoryDesc->setStyleSheet("color: #a0aec0; font-size: 11px; font-style: italic;");
+    lblHistoryDesc->setStyleSheet("color: #64748b; font-size: 11px; font-style: italic;");
     lblHistoryDesc->setWordWrap(true);
     historyLayout->addWidget(lblHistoryDesc, 1, 0, 1, 3);
 
@@ -420,7 +420,7 @@ void CConfigPanelWidget::createDisplayTab()
     opacityLayout->setSpacing(10);
 
     QLabel *lblOpacity = new QLabel("Opacity:");
-    lblOpacity->setStyleSheet("color: #e2e8f0; font-size: 12px;");
+    lblOpacity->setStyleSheet("color: #334155; font-size: 12px;");
     opacityLayout->addWidget(lblOpacity, 0, 0);
 
     m_sliderOpacity = new QSlider(Qt::Horizontal);
@@ -428,19 +428,19 @@ void CConfigPanelWidget::createDisplayTab()
     m_sliderOpacity->setValue(100);
     m_sliderOpacity->setStyleSheet(
         "QSlider::groove:horizontal {"
-        "   background: #1a202c;"
+        "   background: #e2e8f0;"
         "   height: 8px;"
         "   border-radius: 4px;"
         "}"
         "QSlider::handle:horizontal {"
-        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #667eea, stop:1 #764ba2);"
+        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #3b82f6, stop:1 #2563eb);"
         "   width: 18px;"
         "   height: 18px;"
         "   margin: -5px 0;"
         "   border-radius: 9px;"
         "}"
         "QSlider::sub-page:horizontal {"
-        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #667eea, stop:1 #764ba2);"
+        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #3b82f6, stop:1 #2563eb);"
         "   border-radius: 4px;"
         "}"
     );
@@ -453,9 +453,9 @@ void CConfigPanelWidget::createDisplayTab()
     m_spinOpacity->setMaximumWidth(70);
     m_spinOpacity->setStyleSheet(
         "QSpinBox {"
-        "   background-color: #1a202c;"
-        "   color: #ffffff;"
-        "   border: 2px solid #4a5568;"
+        "   background-color: #ffffff;"
+        "   color: #1e293b;"
+        "   border: 2px solid #e2e8f0;"
         "   border-radius: 6px;"
         "   padding: 4px;"
         "}"
@@ -474,32 +474,32 @@ void CConfigPanelWidget::createDisplayTab()
     themeLayout->setSpacing(10);
 
     QLabel *lblTheme = new QLabel("Select Theme:");
-    lblTheme->setStyleSheet("color: #e2e8f0; font-size: 12px;");
+    lblTheme->setStyleSheet("color: #334155; font-size: 12px;");
     themeLayout->addWidget(lblTheme);
 
     m_comboTheme = new QComboBox();
     m_comboTheme->addItems({"🌙 Dark Mode", "☀️ Light Mode", "🌆 Twilight", "🌊 Ocean", "🌲 Forest"});
     m_comboTheme->setStyleSheet(
         "QComboBox {"
-        "   background-color: #1a202c;"
-        "   color: #ffffff;"
-        "   border: 2px solid #4a5568;"
+        "   background-color: #ffffff;"
+        "   color: #1e293b;"
+        "   border: 2px solid #e2e8f0;"
         "   border-radius: 8px;"
         "   padding: 10px;"
         "   font-size: 12px;"
         "}"
         "QComboBox:hover {"
-        "   border: 2px solid #667eea;"
+        "   border: 2px solid #3b82f6;"
         "}"
         "QComboBox::drop-down {"
         "   border: none;"
         "   padding-right: 10px;"
         "}"
         "QComboBox QAbstractItemView {"
-        "   background-color: #2d3748;"
-        "   color: #ffffff;"
-        "   selection-background-color: #667eea;"
-        "   border: 2px solid #4a5568;"
+        "   background-color: #ffffff;"
+        "   color: #1e293b;"
+        "   selection-background-color: #3b82f6;"
+        "   border: 2px solid #e2e8f0;"
         "   border-radius: 6px;"
         "}"
     );
@@ -514,7 +514,7 @@ void CConfigPanelWidget::createDisplayTab()
 
     QString checkboxStyle =
         "QCheckBox {"
-        "   color: #ffffff;"
+        "   color: #1e293b;"
         "   font-size: 12px;"
         "   spacing: 8px;"
         "}"
@@ -522,15 +522,15 @@ void CConfigPanelWidget::createDisplayTab()
         "   width: 20px;"
         "   height: 20px;"
         "   border-radius: 4px;"
-        "   border: 2px solid #4a5568;"
-        "   background-color: #1a202c;"
+        "   border: 2px solid #e2e8f0;"
+        "   background-color: #ffffff;"
         "}"
         "QCheckBox::indicator:checked {"
-        "   background-color: #667eea;"
-        "   border: 2px solid #667eea;"
+        "   background-color: #3b82f6;"
+        "   border: 2px solid #3b82f6;"
         "}"
         "QCheckBox::indicator:hover {"
-        "   border: 2px solid #667eea;"
+        "   border: 2px solid #3b82f6;"
         "}";
 
     m_chkAntialiasing = new QCheckBox("Enable Antialiasing");
@@ -583,7 +583,7 @@ void CConfigPanelWidget::createSystemTab()
     m_chkAutoUpdate->setChecked(true);
     m_chkAutoUpdate->setStyleSheet(
         "QCheckBox {"
-        "   color: #ffffff;"
+        "   color: #1e293b;"
         "   font-size: 12px;"
         "   spacing: 8px;"
         "}"
@@ -591,19 +591,19 @@ void CConfigPanelWidget::createSystemTab()
         "   width: 20px;"
         "   height: 20px;"
         "   border-radius: 4px;"
-        "   border: 2px solid #4a5568;"
-        "   background-color: #1a202c;"
+        "   border: 2px solid #e2e8f0;"
+        "   background-color: #ffffff;"
         "}"
         "QCheckBox::indicator:checked {"
-        "   background-color: #667eea;"
-        "   border: 2px solid #667eea;"
+        "   background-color: #3b82f6;"
+        "   border: 2px solid #3b82f6;"
         "}"
     );
     updateLayout->addWidget(m_chkAutoUpdate);
 
     QHBoxLayout *intervalLayout = new QHBoxLayout();
     QLabel *lblInterval = new QLabel("Update Interval:");
-    lblInterval->setStyleSheet("color: #e2e8f0; font-size: 12px;");
+    lblInterval->setStyleSheet("color: #334155; font-size: 12px;");
     intervalLayout->addWidget(lblInterval);
 
     m_spinUpdateInterval = new QSpinBox();
@@ -612,9 +612,9 @@ void CConfigPanelWidget::createSystemTab()
     m_spinUpdateInterval->setSuffix(" ms");
     m_spinUpdateInterval->setStyleSheet(
         "QSpinBox {"
-        "   background-color: #1a202c;"
-        "   color: #ffffff;"
-        "   border: 2px solid #4a5568;"
+        "   background-color: #ffffff;"
+        "   color: #1e293b;"
+        "   border: 2px solid #e2e8f0;"
         "   border-radius: 6px;"
         "   padding: 8px;"
         "}"
@@ -630,15 +630,15 @@ void CConfigPanelWidget::createSystemTab()
     infoLayout->setSpacing(8);
 
     QLabel *lblVersion = new QLabel("Version: 1.0.0");
-    lblVersion->setStyleSheet("color: #a0aec0; font-size: 11px;");
+    lblVersion->setStyleSheet("color: #64748b; font-size: 11px;");
     infoLayout->addWidget(lblVersion);
 
     QLabel *lblQt = new QLabel("Qt Version: " + QString(QT_VERSION_STR));
-    lblQt->setStyleSheet("color: #a0aec0; font-size: 11px;");
+    lblQt->setStyleSheet("color: #64748b; font-size: 11px;");
     infoLayout->addWidget(lblQt);
 
     QLabel *lblBuild = new QLabel("Build: Release");
-    lblBuild->setStyleSheet("color: #a0aec0; font-size: 11px;");
+    lblBuild->setStyleSheet("color: #64748b; font-size: 11px;");
     infoLayout->addWidget(lblBuild);
 
     layout->addWidget(infoGroup);
@@ -651,37 +651,37 @@ void CConfigPanelWidget::applyRichStyle()
 {
     setStyleSheet(
         "QDockWidget {"
-        "   background-color: #1a202c;"
-        "   color: #ffffff;"
+        "   background-color: #f8fafc;"
+        "   color: #1e293b;"
         "   font-size: 13px;"
         "   font-weight: bold;"
         "}"
         "QDockWidget::title {"
-        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #667eea, stop:1 #764ba2);"
+        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #3b82f6, stop:1 #2563eb);"
         "   padding: 10px;"
-        "   border-bottom: 2px solid #4a5568;"
+        "   border-bottom: 2px solid #e2e8f0;"
         "   text-align: center;"
         "}"
         "QDockWidget::close-button, QDockWidget::float-button {"
-        "   background-color: rgba(255, 255, 255, 0.1);"
+        "   background-color: rgba(226, 232, 240, 0.5);"
         "   border-radius: 4px;"
         "   padding: 4px;"
         "}"
         "QDockWidget::close-button:hover, QDockWidget::float-button:hover {"
-        "   background-color: rgba(255, 255, 255, 0.2);"
+        "   background-color: rgba(226, 232, 240, 1.0);"
         "}"
     );
 
     m_tabWidget->setStyleSheet(
         "QTabWidget::pane {"
-        "   background-color: #1a202c;"
-        "   border: 2px solid #4a5568;"
+        "   background-color: #f8fafc;"
+        "   border: 2px solid #e2e8f0;"
         "   border-radius: 8px;"
         "   top: -2px;"
         "}"
         "QTabBar::tab {"
-        "   background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #2d3748, stop:1 #1a202c);"
-        "   color: #a0aec0;"
+        "   background: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #f1f5f9, stop:1 #e2e8f0);"
+        "   color: #475569;"
         "   padding: 15px 10px;"
         "   margin: 2px;"
         "   border-top-left-radius: 8px;"
@@ -692,12 +692,12 @@ void CConfigPanelWidget::applyRichStyle()
         "   text-align: center;"
         "}"
         "QTabBar::tab:selected {"
-        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #667eea, stop:1 #764ba2);"
+        "   background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #3b82f6, stop:1 #2563eb);"
         "   color: white;"
         "}"
         "QTabBar::tab:hover:!selected {"
-        "   background: #2d3748;"
-        "   color: #ffffff;"
+        "   background: #e2e8f0;"
+        "   color: #1e293b;"
         "}"
     );
 }

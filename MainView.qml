@@ -6,7 +6,7 @@ import QtCharts 2.15
 Rectangle {
     id: root
     anchors.fill: parent
-    color: "#0a0d1a" // Dark holographic background
+    color: "#ffffff" // White background
 
     ColumnLayout {
         anchors.fill: parent
@@ -24,16 +24,16 @@ Rectangle {
 //                value: 68
 //                anchors.verticalCenter: parent.verticalCenter
 //                style: GaugeStyle {
-//                    valueBar: Rectangle { color: "#00ffff" }
-//                    background: Rectangle { color: "#111" }
+//                    valueBar: Rectangle { color: "#3b82f6" }
+//                    background: Rectangle { color: "#f8fafc" }
 //                }
 //            }
 
             // Line Chart
             ChartView {
                 antialiasing: true
-                theme: ChartView.ChartThemeDark
-                backgroundColor: "#111"
+                theme: ChartView.ChartThemeLight
+                backgroundColor: "#ffffff"
                 LineSeries {
                     name: "Signal"
                    // points: [Qt.point(0,1), Qt.point(1,3), Qt.point(2,1), Qt.point(3,4)]
@@ -49,13 +49,13 @@ Rectangle {
         Rectangle {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            color: "#111"
+            color: "#f8fafc"
             radius: 10
-            border.color: "#00ffff"
+            border.color: "#3b82f6"
             Text {
                 anchors.centerIn: parent
                 text: "Radar Placeholder"
-                color: "#00ffff"
+                color: "#1e293b"
             }
         }
     }
