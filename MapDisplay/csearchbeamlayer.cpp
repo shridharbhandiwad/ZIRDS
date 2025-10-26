@@ -11,11 +11,11 @@ CSearchBeamLayer::CSearchBeamLayer(QgsMapCanvas *canvas)
     setZValue(102);
 
     connect(&_animationTimer, &QTimer::timeout, this, [this]() {
-           _sweepAngle += 2.0;
+           _sweepAngle += 3.0;
            if (_sweepAngle >= 360.0) _sweepAngle = 0.0;
            update();  // Trigger repaint
        });
-       _animationTimer.start(10);  // ~33 FPS
+       _animationTimer.start(50);  // 20 FPS - reduced from 100 FPS for better performance
 }
 
 QgsMapCanvas *CSearchBeamLayer::canvas() {
@@ -60,7 +60,7 @@ void CSearchBeamLayer::paint(QPainter *painter)
     double metersPerDegreeLon = 111320.0 * std::cos(qDegreesToRadians(m_center.y())); // depends on latitude
 
 
-    painter->setRenderHint(QPainter::Antialiasing, true);
+    painter->setRenderHint(QPainter::Antialiasing, false);  // Disable AA for sweep beam to improve performance
 
     double pixelPerDegree = 1.0 / canvas()->mapUnitsPerPixel();
 
@@ -79,7 +79,7 @@ void CSearchBeamLayer::paint(QPainter *painter)
     QPainterPath beamPath;
     beamPath.moveTo(m_centerScreen);
 
-    for (double angle = startAngle; angle <= endAngle; angle += 1.0) {
+    for (double angle = startAngle; angle <= endAngle; angle += 2.0) {  // Increased step for fewer points
         double radians = qDegreesToRadians(angle);
         double x = m_centerScreen.x() + std::cos(radians) * m_maxRange * pixelPerMeterX;
         double y = m_centerScreen.y() - std::sin(radians) * m_maxRange * pixelPerMeterY;

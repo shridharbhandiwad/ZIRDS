@@ -86,6 +86,12 @@ private:
     // Cached images for track icons
     QHash<int, QPixmap> m_trackPixmaps; //!< Cache of loaded images by track ID
     QHash<QString, QPixmap> m_defaultIconCache; //!< Cache for generated default icons
+    QHash<QString, QPixmap> m_rotatedImageCache; //!< Cache for rotated images (key: "trackId_heading")
+    
+    // Mouse move throttling
+    QTimer m_mouseMoveThrottle;
+    QPointF m_pendingMousePos;
+    bool m_hasPendingMouseMove;
 
     /**
      * @brief Creates the context menu for tracks

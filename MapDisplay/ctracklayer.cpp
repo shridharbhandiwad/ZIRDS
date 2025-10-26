@@ -134,15 +134,29 @@ int nAnimFrame = 0;
  */
 CTrackLayer::CTrackLayer(QgsMapCanvas *canvas)
     : QgsMapCanvasItem(canvas), m_canvas(canvas), m_hoveredTrackId(-1), m_rightClickedTrackId(-1), 
-      m_contextMenu(nullptr), m_focusedTrackId(-1)
+      m_contextMenu(nullptr), m_focusedTrackId(-1), m_hasPendingMouseMove(false)
 {
     setZValue(101); // Ensure drawing order: above base map, below UI overlays
     QObject::connect(&m_timer, &QTimer::timeout, this, &CTrackLayer::_UpdateAnimation);
-    m_timer.start(150); // ~10 FPS for smooth animation
+    m_timer.start(200); // Reduced from 150ms to 200ms for better performance
 
     // Enable mouse tracking on the canvas
     m_canvas->viewport()->setMouseTracking(true);
     m_canvas->viewport()->installEventFilter(this);
+    
+    // Setup mouse move throttling - only update tooltips every 100ms
+    m_mouseMoveThrottle.setSingleShot(true);
+    m_mouseMoveThrottle.setInterval(100);
+    QObject::connect(&m_mouseMoveThrottle, &QTimer::timeout, this, [this]() {
+        if (m_hasPendingMouseMove) {
+            int trackId = getTrackAtPosition(m_pendingMousePos);
+            if (trackId != m_hoveredTrackId) {
+                m_hoveredTrackId = trackId;
+                update();
+            }
+            m_hasPendingMouseMove = false;
+        }
+    });
     
     // Create context menu
     createContextMenu();
@@ -187,15 +201,16 @@ bool CTrackLayer::eventFilter(QObject *obj, QEvent *event)
         if (event->type() == QEvent::MouseMove) {
             QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
             m_mousePos = mouseEvent->pos();
-
-            int trackId = getTrackAtPosition(m_mousePos);
-
-            if (trackId != m_hoveredTrackId) {
-                m_hoveredTrackId = trackId;
-                update(); // Redraw to show/hide tooltip
+            m_pendingMousePos = m_mousePos;
+            m_hasPendingMouseMove = true;
+            
+            // Throttle mouse move processing to reduce redraws
+            if (!m_mouseMoveThrottle.isActive()) {
+                m_mouseMoveThrottle.start();
             }
-
-            // Change cursor when hovering over track
+            
+            // Still update cursor immediately for better responsiveness
+            int trackId = getTrackAtPosition(m_mousePos);
             if (trackId != -1) {
                 m_canvas->setCursor(Qt::PointingHandCursor);
             } else {
@@ -414,19 +429,27 @@ int CTrackLayer::getTrackAtPosition(const QPointF &pos)
 
     // Detection radius in pixels
     const double detectionRadius = 20.0;
+    const double detectionRadiusSq = detectionRadius * detectionRadius;  // Avoid sqrt
+
+    // Find closest track within detection radius
+    int closestTrackId = -1;
+    double closestDistanceSq = detectionRadiusSq;
 
     for (const stTrackDisplayInfo &track : listTracks) {
         QPointF ptScreen = mapToPixel.transform(QgsPointXY(track.lon, track.lat)).toQPointF();
 
-        // Calculate distance from mouse to track
-        double distance = QLineF(pos, ptScreen).length();
+        // Calculate squared distance (faster than sqrt)
+        double dx = pos.x() - ptScreen.x();
+        double dy = pos.y() - ptScreen.y();
+        double distanceSq = dx * dx + dy * dy;
 
-        if (distance <= detectionRadius) {
-            return track.nTrkId;
+        if (distanceSq < closestDistanceSq) {
+            closestDistanceSq = distanceSq;
+            closestTrackId = track.nTrkId;
         }
     }
 
-    return -1; // No track found
+    return closestTrackId;
 }
 
 /**
@@ -509,35 +532,15 @@ void CTrackLayer::drawTooltip(QPainter *pPainter, const stTrackDisplayInfo &trac
 
     QRectF tooltipRect(tooltipPos, QSizeF(tooltipWidth, tooltipHeight));
 
-    // Draw subtle outer glow
+    // Simple background - no gradients for performance
+    pPainter->setPen(QPen(identityColor, 2));
+    pPainter->setBrush(QColor(30, 30, 40, 200));
+    pPainter->drawRoundedRect(tooltipRect, 8, 8);
+
+    // Accent line on left side
+    QRectF accentRect(tooltipPos.x() + 2, tooltipPos.y() + 5, 3, tooltipHeight - 10);
     pPainter->setPen(Qt::NoPen);
-    pPainter->setBrush(QColor(0, 0, 0, 30));
-    pPainter->drawRoundedRect(tooltipRect.adjusted(-2, -2, 2, 2), 12, 12);
-
-    // Main background - highly transparent glass effect
-    QLinearGradient bgGradient(tooltipRect.topLeft(), tooltipRect.bottomLeft());
-    bgGradient.setColorAt(0, QColor(30, 30, 40, 120)); // More transparent
-    bgGradient.setColorAt(1, QColor(20, 20, 30, 140)); // More transparent
-
-    pPainter->setBrush(bgGradient);
-    pPainter->setPen(Qt::NoPen);
-    pPainter->drawRoundedRect(tooltipRect, 10, 10);
-
-    // Glossy top highlight - very subtle
-    QLinearGradient glossGradient(tooltipRect.topLeft(),
-                                   QPointF(tooltipRect.left(), tooltipRect.top() + tooltipRect.height() * 0.3));
-    glossGradient.setColorAt(0, QColor(255, 255, 255, 20));
-    glossGradient.setColorAt(1, QColor(255, 255, 255, 0));
-
-    pPainter->setBrush(glossGradient);
-    pPainter->drawRoundedRect(tooltipRect, 10, 10);
-
-    // Accent line on left side - semi-transparent
-    QRectF accentRect(tooltipPos.x(), tooltipPos.y() + 5, 4, tooltipHeight - 10);
-    pPainter->setPen(Qt::NoPen);
-    QColor accentColor = identityColor;
-    accentColor.setAlpha(180);
-    pPainter->setBrush(accentColor);
+    pPainter->setBrush(identityColor);
     pPainter->drawRoundedRect(accentRect, 2, 2);
 
     // Draw text with subtle shadow
@@ -551,11 +554,7 @@ void CTrackLayer::drawTooltip(QPainter *pPainter, const stTrackDisplayInfo &trac
             continue;
         }
 
-        // Text shadow
-        pPainter->setPen(QColor(0, 0, 0, 120));
-        pPainter->drawText(QPointF(tooltipPos.x() + padding + 1, tooltipPos.y() + yOffset + 1), line);
-
-        // Main text with colors
+        // Main text with colors (removed text shadow for performance)
         if (i == 0) {
             // Track ID - bright cyan
             pPainter->setFont(QFont("Segoe UI", 11, QFont::Bold));
@@ -570,27 +569,9 @@ void CTrackLayer::drawTooltip(QPainter *pPainter, const stTrackDisplayInfo &trac
             pPainter->setPen(QColor(240, 240, 240));
         }
 
-        pPainter->drawText(QPointF(tooltipPos.x() + padding, tooltipPos.y() + yOffset), line);
+        pPainter->drawText(QPointF(tooltipPos.x() + padding + 10, tooltipPos.y() + yOffset), line);
         yOffset += lineHeight;
     }
-
-    // Add small connection line from tooltip to track
-    QPainterPath connectorPath;
-    if (tooltipPos.x() > screenPos.x()) {
-        // Tooltip on right
-        connectorPath.moveTo(tooltipPos.x(), tooltipPos.y() + tooltipHeight / 2);
-        connectorPath.lineTo(screenPos.x() + 10, screenPos.y());
-    } else {
-        // Tooltip on left
-        connectorPath.moveTo(tooltipPos.x() + tooltipWidth, tooltipPos.y() + tooltipHeight / 2);
-        connectorPath.lineTo(screenPos.x() - 10, screenPos.y());
-    }
-
-    QColor connectorColor = identityColor;
-    connectorColor.setAlpha(120);
-    pPainter->setPen(QPen(connectorColor, 1.5, Qt::DotLine));
-    pPainter->setBrush(Qt::NoBrush);
-    pPainter->drawPath(connectorPath);
 }
 
 /**
@@ -1079,16 +1060,29 @@ void CTrackLayer::paint(QPainter *pPainter)
 
                 if (m_trackPixmaps.contains(track.nTrkId)) {
                     const QPixmap &pix = m_trackPixmaps.value(track.nTrkId);
-                    // Scale to a reasonable on-screen size based on focus/highlight
                     int baseSize = isFocused ? 40 : (isHighlighted ? 32 : 24);
-                    QPixmap scaled = pix.scaled(baseSize, baseSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-
-                    // Rotate so that image points along heading (assume up=0°, clockwise)
-                    QTransform transform;
-                    transform.translate(scaled.width() / 2.0, scaled.height() / 2.0);
-                    transform.rotate(-track.heading); // Qt rotates counter-clockwise; invert to align
-                    transform.translate(-scaled.width() / 2.0, -scaled.height() / 2.0);
-                    QPixmap rotated = scaled.transformed(transform, Qt::SmoothTransformation);
+                    
+                    // Round heading to nearest 5 degrees for better cache hits
+                    int roundedHeading = static_cast<int>(track.heading / 5.0) * 5;
+                    QString cacheKey = QString("%1_%2_%3").arg(track.nTrkId).arg(baseSize).arg(roundedHeading);
+                    
+                    QPixmap rotated;
+                    if (m_rotatedImageCache.contains(cacheKey)) {
+                        rotated = m_rotatedImageCache.value(cacheKey);
+                    } else {
+                        QPixmap scaled = pix.scaled(baseSize, baseSize, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                        QTransform transform;
+                        transform.translate(scaled.width() / 2.0, scaled.height() / 2.0);
+                        transform.rotate(-roundedHeading);
+                        transform.translate(-scaled.width() / 2.0, -scaled.height() / 2.0);
+                        rotated = scaled.transformed(transform, Qt::SmoothTransformation);
+                        
+                        // Limit cache size to prevent memory issues
+                        if (m_rotatedImageCache.size() > 500) {
+                            m_rotatedImageCache.clear();
+                        }
+                        m_rotatedImageCache.insert(cacheKey, rotated);
+                    }
 
                     // Draw centered at ptScreen
                     QPointF topLeft(ptScreen.x() - rotated.width() / 2.0,
@@ -1101,56 +1095,37 @@ void CTrackLayer::paint(QPainter *pPainter)
             if (!drawnCustomImage) {
                 // Fallback: draw a small default drone-like marker oriented by heading
                 int baseSize = isFocused ? 28 : (isHighlighted ? 22 : 16);
-                // Generate default icon tinted by identity color (cache by color+size)
-                QString cacheKey = QString("%1x%2_%3").arg(baseSize).arg(baseSize).arg(clr.name());
-                QPixmap defaultIcon;
-                if (m_defaultIconCache.contains(cacheKey)) {
-                    defaultIcon = m_defaultIconCache.value(cacheKey);
+                int roundedHeading = static_cast<int>(track.heading / 5.0) * 5;
+                QString cacheKey = QString("def_%1_%2_%3").arg(baseSize).arg(clr.name()).arg(roundedHeading);
+                
+                QPixmap rotated;
+                if (m_rotatedImageCache.contains(cacheKey)) {
+                    rotated = m_rotatedImageCache.value(cacheKey);
                 } else {
-                    defaultIcon = getDefaultDronePixmap(baseSize, clr, Qt::white);
-                    m_defaultIconCache.insert(cacheKey, defaultIcon);
+                    QPixmap defaultIcon;
+                    QString iconKey = QString("%1x%2_%3").arg(baseSize).arg(baseSize).arg(clr.name());
+                    if (m_defaultIconCache.contains(iconKey)) {
+                        defaultIcon = m_defaultIconCache.value(iconKey);
+                    } else {
+                        defaultIcon = getDefaultDronePixmap(baseSize, clr, Qt::white);
+                        m_defaultIconCache.insert(iconKey, defaultIcon);
+                    }
+                    
+                    QTransform transform;
+                    transform.translate(defaultIcon.width() / 2.0, defaultIcon.height() / 2.0);
+                    transform.rotate(-roundedHeading);
+                    transform.translate(-defaultIcon.width() / 2.0, -defaultIcon.height() / 2.0);
+                    rotated = defaultIcon.transformed(transform, Qt::SmoothTransformation);
+                    
+                    if (m_rotatedImageCache.size() > 500) {
+                        m_rotatedImageCache.clear();
+                    }
+                    m_rotatedImageCache.insert(cacheKey, rotated);
                 }
-                QTransform transform;
-                transform.translate(defaultIcon.width() / 2.0, defaultIcon.height() / 2.0);
-                transform.rotate(-track.heading);
-                transform.translate(-defaultIcon.width() / 2.0, -defaultIcon.height() / 2.0);
-                QPixmap rotated = defaultIcon.transformed(transform, Qt::SmoothTransformation);
+                
                 QPointF topLeft(ptScreen.x() - rotated.width() / 2.0,
                                 ptScreen.y() - rotated.height() / 2.0);
                 pPainter->drawPixmap(topLeft, rotated);
-            // Draw drone image if available and track has a drone, otherwise draw core dot
-            bool useDroneImage = false;
-            QPixmap imageToUse;
-            
-            // Check if this track has a custom image
-            if (m_trackImages.contains(track.nTrkId)) {
-                imageToUse = m_trackImages[track.nTrkId];
-                useDroneImage = true;
-            }
-            // Otherwise use default drone icon if track has an associated drone
-            else if (track.pDrone && !m_droneIcon.isNull()) {
-                imageToUse = m_droneIcon;
-                useDroneImage = true;
-            }
-            
-            if (useDroneImage && !imageToUse.isNull()) {
-                // Calculate scale based on zoom level and track state
-                double baseScale = 0.4; // Base scale for the drone image (increased for visibility)
-                double zoomScale = qMin(1.5, pixelPerDegree / 1000000.0); // Scale with zoom
-                double stateScale = 1.0;
-                
-                if (isFocused) stateScale = 1.5;
-                else if (isHighlighted) stateScale = 1.2;
-                
-                double finalScale = baseScale * zoomScale * stateScale;
-                
-                // Draw the rotated drone image
-                drawRotatedDroneImage(pPainter, imageToUse, ptScreen, track.heading, finalScale);
-            } else {
-                // Fallback to drawing core dot if no image available
-                pPainter->setPen(clr);
-                pPainter->setBrush(clr);
-                pPainter->drawEllipse(ptScreen, trackSize, trackSize);
             }
 
             // Draw speed vector instead of simple heading line
@@ -1164,32 +1139,32 @@ void CTrackLayer::paint(QPainter *pPainter)
             }
         }
 
-        // Glowing blip animation
-        int nMaxRadius = 20;
-        int nCurrentRadius = 4 + (nAnimFrame * (nMaxRadius - 4) / 20);
-        int nAlpha = 255 - (nAnimFrame * 255 / 20); // Fades out
+        // Simplified blip animation - only for highlighted/focused tracks to improve performance
+        if (isHighlighted || isFocused || isHovered) {
+            int nMaxRadius = 20;
+            int nCurrentRadius = 4 + (nAnimFrame * (nMaxRadius - 4) / 20);
+            int nAlpha = 255 - (nAnimFrame * 255 / 20);
 
-        // Gradient blip: transparent center → bright edge
-        QRadialGradient gradient(ptScreen, nCurrentRadius);
-        QColor clrEdge(clr.red(), clr.green(), clr.blue(), nAlpha);
+            // Simplified blip - single color with alpha, no gradient
+            QColor blipColor = clr;
+            blipColor.setAlpha(nAlpha);
 
-        gradient.setColorAt(0, Qt::cyan);
-        gradient.setColorAt(0.5, clr);
-        gradient.setColorAt(1.0, clrEdge);
-
-        pPainter->setPen(Qt::NoPen);
-        pPainter->setBrush(gradient);
-        pPainter->drawEllipse(ptScreen, nCurrentRadius, nCurrentRadius);
+            pPainter->setPen(Qt::NoPen);
+            pPainter->setBrush(blipColor);
+            pPainter->drawEllipse(ptScreen, nCurrentRadius, nCurrentRadius);
+        }
         
-        // Draw history trail if enabled
+        // Draw history trail if enabled - optimized version
         if (track.showHistory && !track.historyPoints.isEmpty()) {
+            int totalPoints = track.historyPoints.size();
+            
+            // Only draw every Nth point for better performance with large histories
+            int step = (totalPoints > 50) ? 2 : 1;
+            
             QPainterPath historyPath;
             bool firstPoint = true;
             
-            // Calculate fade effect based on history point age
-            int totalPoints = track.historyPoints.size();
-            
-            for (int i = 0; i < totalPoints; ++i) {
+            for (int i = 0; i < totalPoints; i += step) {
                 const stTrackHistoryPoint &histPoint = track.historyPoints[i];
                 QPointF histScreen = mapToPixel.transform(QgsPointXY(histPoint.lon, histPoint.lat)).toQPointF();
                 
@@ -1199,35 +1174,23 @@ void CTrackLayer::paint(QPainter *pPainter)
                 } else {
                     historyPath.lineTo(histScreen);
                 }
-                
-                // Draw small dot for each history point with fading effect
-                // Older points are more transparent
-                int alpha = 50 + (i * 150 / totalPoints);  // Fade from 50 to 200
-                QColor dotColor = clr;
-                dotColor.setAlpha(alpha);
-                
-                pPainter->setPen(Qt::NoPen);
-                pPainter->setBrush(dotColor);
-                pPainter->drawEllipse(histScreen, 2, 2);
             }
             
             // Draw the history trail line
             QColor trailColor = clr;
             trailColor.setAlpha(120);
-            pPainter->setPen(QPen(trailColor, 2, Qt::DashLine));
+            pPainter->setPen(QPen(trailColor, 1.5, Qt::DashLine));
             pPainter->setBrush(Qt::NoBrush);
             pPainter->drawPath(historyPath);
             
             // Draw line from last history point to current position
-            if (!track.historyPoints.isEmpty()) {
-                const stTrackHistoryPoint &lastPoint = track.historyPoints.last();
-                QPointF lastScreen = mapToPixel.transform(QgsPointXY(lastPoint.lon, lastPoint.lat)).toQPointF();
-                
-                QColor connectColor = clr;
-                connectColor.setAlpha(180);
-                pPainter->setPen(QPen(connectColor, 2, Qt::SolidLine));
-                pPainter->drawLine(lastScreen, ptScreen);
-            }
+            const stTrackHistoryPoint &lastPoint = track.historyPoints.last();
+            QPointF lastScreen = mapToPixel.transform(QgsPointXY(lastPoint.lon, lastPoint.lat)).toQPointF();
+            
+            QColor connectColor = clr;
+            connectColor.setAlpha(180);
+            pPainter->setPen(QPen(connectColor, 2, Qt::SolidLine));
+            pPainter->drawLine(lastScreen, ptScreen);
         }
     }
 
