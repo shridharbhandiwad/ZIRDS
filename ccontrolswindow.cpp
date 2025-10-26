@@ -12,6 +12,7 @@
 #include <QKeyEvent>
 #include <QCloseEvent>
 #include <QStatusBar>
+#include <QIcon>
 #include <QDebug>
 
 CControlsWindow::CControlsWindow(QWidget *parent)
@@ -30,7 +31,8 @@ CControlsWindow::CControlsWindow(QWidget *parent)
     , m_statusTimer(new QTimer(this))
     , m_settings(new QSettings("RadarDisplay", "ControlsWindow", this))
 {
-    setWindowTitle("🎛️ Control Center - System Management");
+    setWindowTitle("🎛️ ZIRDS - Control Center | © Zoppler Systems");
+    setWindowIcon(QIcon(":/images/resources/zoppler_logo.png"));
     setMinimumSize(900, 650);
     resize(950, 700); // Set initial size
 

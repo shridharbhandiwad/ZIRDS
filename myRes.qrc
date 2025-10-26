@@ -14,5 +14,6 @@
     <qresource prefix="/images">
         <file>resources/drone_icon.svg</file>
         <file>resources/drone_icon.png</file>
+        <file>resources/zoppler_logo.png</file>
     </qresource>
 </RCC>

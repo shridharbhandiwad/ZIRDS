@@ -8,6 +8,7 @@
 #include <QSplitter>
 #include <QStatusBar>
 #include <QToolBar>
+#include <QIcon>
 #include <QDebug>
 
 CPPIWindow::CPPIWindow(QWidget *parent)
@@ -26,7 +27,8 @@ CPPIWindow::CPPIWindow(QWidget *parent)
     , m_statusTimer(new QTimer(this))
     , m_settings(new QSettings("RadarDisplay", "PPIWindow", this))
 {
-    setWindowTitle("🎯 PPI Display - Map & Tracks");
+    setWindowTitle("🎯 ZIRDS - PPI Display | © Zoppler Systems");
+    setWindowIcon(QIcon(":/images/resources/zoppler_logo.png"));
     setMinimumSize(1200, 800);
 
     setupUI();
