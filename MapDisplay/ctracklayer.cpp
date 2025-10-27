@@ -1129,7 +1129,7 @@ void CTrackLayer::paint(QPainter *pPainter)
             }
 
             // Draw speed vector instead of simple heading line
-            drawSpeedVector(pPainter, track, ptScreen, clr);
+            // DISABLED: drawSpeedVector(pPainter, track, ptScreen, clr);
 
             if (pixelPerDegree > TEXT_VISIBLE_THRESHOLD) {
                 pPainter->setFont(QFont("century", 11, 80, true));
