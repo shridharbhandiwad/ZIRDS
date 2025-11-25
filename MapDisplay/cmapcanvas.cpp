@@ -254,8 +254,8 @@ void CMapCanvas::_loadLayers() {
     QPointF radarPos = CDataWarehouse::getInstance()->getRadarPos();
     _m_ppiLayer = new CPPILayer(this);
     _m_ppiLayer->setCenter(QgsPointXY(radarPos.x(), radarPos.y())); // or use dynamic source like GPS
-    _m_ppiLayer->setMaxRange(8000);
-    _m_ppiLayer->setRangeRingCount(4);
+    _m_ppiLayer->setMaxRange(40000);
+    _m_ppiLayer->setRangeRingCount(10);
     _m_ppiLayer->setAzimuthStep(45);
     _m_ppiLayer->show();
 
