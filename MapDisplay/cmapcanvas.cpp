@@ -5,6 +5,7 @@
 #include <qgsrectangle.h>
 #include <QDir>
 #include <QFileInfoList>
+#include <QtMath>
 #include <qgscoordinatetransformcontext.h>
 #include <qgsfillsymbol.h>
 #include <qgssinglesymbolrenderer.h>
@@ -21,7 +22,7 @@
 #include  <QProcess>
 
 CMapCanvas::CMapCanvas(QWidget *parent) : QgsMapCanvas(parent),
-    _m_ppiLayer(nullptr),_m_trackLayer(nullptr), m_mapLayersVisible(true)
+    _m_ppiLayer(nullptr),_m_trackLayer(nullptr), _m_homeHighlightLayer(nullptr), m_mapLayersVisible(true)
 {
     QgsRectangle fixedWorldExtent(-180.0, -90.0, 180.0, 90.0);
 
@@ -261,6 +262,10 @@ void CMapCanvas::_loadLayers() {
 
     _m_trackLayer = new CTrackLayer(this);
     _m_trackLayer->show();
+
+    // Initialize home position highlight layer
+    _m_homeHighlightLayer = new CHomePositionHighlightLayer(this);
+    _m_homeHighlightLayer->setCenter(QgsPointXY(radarPos.x(), radarPos.y()));
 }
 
 void CMapCanvas::setMapLayersVisible(bool visible)
@@ -368,9 +373,39 @@ void CMapCanvas::loadShapeFile(const QString &shpPath)
 void CMapCanvas::mapHome() {
 
     if ( _m_ppiLayer != nullptr ) {
-        QgsRectangle rectExtent = _m_ppiLayer->boundingRectWorld();
+        // Get the radar position (home position)
+        QPointF radarPos = CDataWarehouse::getInstance()->getRadarPos();
+        QgsPointXY centerPoint(radarPos.x(), radarPos.y());
+        
+        // Calculate extent for 25 km focus (25000 meters)
+        // Convert meters to degrees (approximate conversion at latitude)
+        double metersPerDegreeLat = 111132.0;
+        double metersPerDegreeLon = 111320.0 * std::cos(qDegreesToRadians(radarPos.y()));
+        
+        double radiusKm = 25.0; // 25 km radius
+        double radiusMeters = radiusKm * 1000.0;
+        
+        double deltaLat = radiusMeters / metersPerDegreeLat;
+        double deltaLon = radiusMeters / metersPerDegreeLon;
+        
+        // Create extent centered on home position with 25 km radius
+        QgsRectangle rectExtent(
+            centerPoint.x() - deltaLon,
+            centerPoint.y() - deltaLat,
+            centerPoint.x() + deltaLon,
+            centerPoint.y() + deltaLat
+        );
+        
         setExtent(rectExtent);
         refresh();
+        
+        // Trigger home position highlight animation
+        if (_m_homeHighlightLayer != nullptr) {
+            _m_homeHighlightLayer->setCenter(centerPoint);
+            _m_homeHighlightLayer->startAnimation(3000); // 3 second animation
+        }
+        
+        qDebug() << "Map home: Zoomed to 25 km focus at position" << radarPos;
     }
 }
 

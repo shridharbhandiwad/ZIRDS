@@ -43,6 +43,9 @@ CPPIWindow::CPPIWindow(QWidget *parent)
     m_statusTimer->start(1000);
 
     loadSettings();
+    
+    // Auto-open Home view on startup with 25 km focus
+    QTimer::singleShot(800, this, &CPPIWindow::onMapHome);
 }
 
 CPPIWindow::~CPPIWindow()
